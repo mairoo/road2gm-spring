@@ -59,3 +59,16 @@ spring:
         default_batch_fetch_size: 500
     open-in-view: false # lazy loading queries may be performed during view rendering if true
 ```
+
+# PersistenceConfig.java
+```java
+package kr.co.road2gm.api.global.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+@Configuration
+@EnableJpaAuditing // created, modified fields = Django compatible
+public class PersistenceConfig {
+}
+```
