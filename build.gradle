@@ -1,3 +1,21 @@
+// Project:
+//
+// - Build Tool: Gradle - Groovy
+// - Language: Java
+// - Spring Boot: 3.3.5
+// - Packaging: Jar
+// - Java Version: 17
+//
+
+// Project Metadata:
+//
+// - Group: kr.co.road2gm
+// - Artifact: api
+// - Name: api
+// - Description: Road2GM backend API server
+// - Package name: kr.co.road2gm.api
+//
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.5'
@@ -23,6 +41,18 @@ repositories {
 	mavenCentral()
 }
 
+
+//Dependencies:
+//
+// - Spring Web
+// - Spring Data JPA
+// - Spring Security
+// - Lombok
+// - Validation
+// - MariaDB Driver
+// - Spring Boot DevTools
+// - Spring Configuration Processor
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -40,4 +70,14 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// 버전 태그 없이 jar 파일 빌드, 배포 때 용이
+bootJar {
+	archiveFileName = "${rootProject.name}.jar"
+}
+
+// no plain jar
+jar {
+	enabled = false
 }
