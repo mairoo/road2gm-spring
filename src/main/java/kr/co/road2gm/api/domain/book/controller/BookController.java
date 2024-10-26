@@ -31,8 +31,8 @@ public class BookController {
         if (books.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.noContent().build();
-        // return ResponseEntity.ok(ApiResponse.of(books));
+
+        return ResponseEntity.ok(ApiResponse.of(books));
     }
 
     @GetMapping("/{id}")
