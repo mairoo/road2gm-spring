@@ -1,8 +1,8 @@
 package kr.co.road2gm.api.domain.book.service;
 
-import kr.co.road2gm.api.domain.auth.repository.jpa.BookRepository;
 import kr.co.road2gm.api.domain.book.domain.Book;
 import kr.co.road2gm.api.domain.book.dto.BookResponse;
+import kr.co.road2gm.api.domain.book.repository.jpa.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

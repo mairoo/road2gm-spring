@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.domain.auth.repository.jpa;
+package kr.co.road2gm.api.domain.book.repository.jpa;
 
 import kr.co.road2gm.api.domain.book.domain.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
