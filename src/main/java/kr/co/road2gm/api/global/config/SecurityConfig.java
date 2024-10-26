@@ -1,5 +1,7 @@
 package kr.co.road2gm.api.global.config;
 
+import kr.co.road2gm.api.global.error.exception.JwtAccessDeniedHandler;
+import kr.co.road2gm.api.global.error.exception.JwtAuthenticationEntryPoint;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     // WebSecurityConfigurerAdapter 상속 구현 방식은 더 이상 사용하지 않음
     // 현재는 @Bean 컴포넌트 설정 방식
@@ -64,10 +69,10 @@ public class SecurityConfig {
         http.cors(withDefaults());
 
         // Exception handling
-//        http.exceptionHandling(config -> {
-//            config.authenticationEntryPoint(new HttpAuthenticationEntryPoint()) // 401 Unauthorized: login failure
-//                    .accessDeniedHandler(new HttpAccessDeniedHandler()); // 403 Forbidden: no permission
-//        });
+        http.exceptionHandling(config -> {
+            config.authenticationEntryPoint(authenticationEntryPoint) // 401 Unauthorized: 인증 실패
+                    .accessDeniedHandler(accessDeniedHandler); // 403 Forbidden: 권한 없음
+        });
 
         // HTTP 프로토콜 헤더
         http.headers(headers -> {

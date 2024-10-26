@@ -1,50 +1,82 @@
 package kr.co.road2gm.api.global.error;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Slf4j
-public record ErrorResponse(String message, int status, String code, List<FieldError> errors) {
-    // 필드 에러가 없는 경우
-    public static ErrorResponse of(String message, int status, String code) {
-        return new ErrorResponse(message, status, code, Collections.emptyList());
+@Getter
+public class ErrorResponse {
+    private final LocalDateTime timestamp;
+    private final int status;
+    private final String message;
+    private final String details;
+    private final String path;
+    private final List<FieldError> errors;
+
+    @Builder
+    public ErrorResponse(int status, String message, String details, String path, List<FieldError> errors) {
+        this.timestamp = LocalDateTime.now();
+        this.status = status;
+        this.message = message;
+        this.details = details;
+        this.path = path;
+        this.errors = errors != null ? errors : List.of();
     }
 
-    // 필드 에러가 있는 경우 (validation 실패 등)
-    public static ErrorResponse of(String message, int status, String code, List<FieldError> errors) {
-        return new ErrorResponse(message, status, code, errors);
+    // 기본 에러 응답 생성을 위한 정적 팩토리 메서드
+    public static ErrorResponse of(int status, String message, String details, String path) {
+        return ErrorResponse.builder()
+                .status(status)
+                .message(message)
+                .details(details)
+                .path(path)
+                .errors(List.of())
+                .build();
     }
 
-    // Validation 에러 변환
-    public static ErrorResponse of(BindingResult bindingResult) {
-        List<FieldError> errors = bindingResult.getFieldErrors()
-                .stream()
-                .map(error -> new FieldError(
-                        error.getField(),
-                        error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
-                        error.getDefaultMessage()))
-                .toList();
-
-        return new ErrorResponse(
-                "Validation failed",
-                HttpStatus.BAD_REQUEST.value(),
-                "INVALID_INPUT",
-                errors
-        );
+    // ValidationError가 있는 경우의 응답 생성을 위한 정적 팩토리 메서드
+    public static ErrorResponse of(int status, String message, String details, String path, List<FieldError> errors) {
+        return ErrorResponse.builder()
+                .status(status)
+                .message(message)
+                .details(details)
+                .path(path)
+                .errors(errors)
+                .build();
     }
 
-    // 필드 에러 정보
+    // BindingResult로부터 ErrorResponse를 생성하는 정적 팩토리 메서드
+    public static ErrorResponse of(BindingResult bindingResult, HttpStatus status, String path) {
+        return ErrorResponse.builder()
+                .status(status.value())
+                .message("Validation failed")
+                .details("Field validation error")
+                .path(path)
+                .errors(FieldError.of(bindingResult))
+                .build();
+    }
+
     @Getter
-    @AllArgsConstructor
+    @Builder
     public static class FieldError {
-        private String field;
-        private String value;
-        private String reason;
+        private final String field;
+        private final String value;
+        private final String reason;
+
+        // BindingResult로부터 FieldError 목록 생성
+        public static List<FieldError> of(BindingResult bindingResult) {
+            List<org.springframework.validation.FieldError> fieldErrors = bindingResult.getFieldErrors();
+            return fieldErrors.stream()
+                    .map(error -> FieldError.builder()
+                            .field(error.getField())
+                            .value(error.getRejectedValue() != null ? error.getRejectedValue().toString() : "")
+                            .reason(error.getDefaultMessage())
+                            .build())
+                    .toList();
+        }
     }
 }
