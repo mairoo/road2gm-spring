@@ -1,6 +1,7 @@
 package kr.co.road2gm.api.domain.book.service;
 
 import kr.co.road2gm.api.domain.auth.repository.jpa.BookRepository;
+import kr.co.road2gm.api.domain.book.domain.Book;
 import kr.co.road2gm.api.domain.book.dto.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,11 @@ public class BookService {
 
     public List<BookResponse> findAllBooks() {
         return bookRepository.findAll().stream().map(BookResponse::new).toList();
+    }
+
+    public BookResponse findMember(Long id) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException());
+        return new BookResponse(book);
     }
 }
