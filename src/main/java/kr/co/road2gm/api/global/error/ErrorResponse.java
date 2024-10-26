@@ -2,12 +2,14 @@ package kr.co.road2gm.api.global.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 public record ErrorResponse(String message, int status, String code, List<FieldError> errors) {
     // 필드 에러가 없는 경우
     public static ErrorResponse of(String message, int status, String code) {

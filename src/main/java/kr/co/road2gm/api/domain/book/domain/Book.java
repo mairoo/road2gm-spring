@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kr.co.road2gm.api.domain.auth.domain.User;
 import kr.co.road2gm.api.global.common.BaseDateTime;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "book")
@@ -11,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
+@Slf4j
 public class Book extends BaseDateTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,6 +4,7 @@ import kr.co.road2gm.api.domain.book.dto.BookResponse;
 import kr.co.road2gm.api.domain.book.service.BookService;
 import kr.co.road2gm.api.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
+@Slf4j
 public class BookController {
     private final BookService bookService;
 

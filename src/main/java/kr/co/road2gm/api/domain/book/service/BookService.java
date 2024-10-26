@@ -4,6 +4,7 @@ import kr.co.road2gm.api.domain.auth.repository.jpa.BookRepository;
 import kr.co.road2gm.api.domain.book.domain.Book;
 import kr.co.road2gm.api.domain.book.dto.BookResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
     private final BookRepository bookRepository;
 
