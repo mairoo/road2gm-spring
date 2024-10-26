@@ -18,7 +18,6 @@ public class WebConfig implements WebMvcConfigurer {
     // Rest API 서버에서는 별도의 Web MVC 설정을 할 필요 없다.
     // 단, CORS 설정, 인터셉터, 메시지 컨버터가 필요할 경우 설정이 필요하다.
 
-
     @Value("${cors.allowed-origins:*}")
     private String allowedOrigins;
 
