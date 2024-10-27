@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.error.exception;
+package kr.co.road2gm.api.global.error.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
 package kr.co.road2gm.api.global.config;
 
-import kr.co.road2gm.api.global.error.exception.JwtAccessDeniedHandler;
-import kr.co.road2gm.api.global.error.exception.JwtAuthenticationEntryPoint;
+import kr.co.road2gm.api.global.error.handlers.JwtAccessDeniedHandler;
+import kr.co.road2gm.api.global.error.handlers.JwtAuthenticationEntryPoint;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
