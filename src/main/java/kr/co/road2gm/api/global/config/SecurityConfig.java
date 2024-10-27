@@ -5,6 +5,7 @@ import kr.co.road2gm.api.global.error.handlers.JwtAuthenticationEntryPoint;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -39,6 +40,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
+    @Value("${security-config.content-security-policy}")
+    private String contentSecurityPolicy;
+
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     private final JwtAccessDeniedHandler accessDeniedHandler;
@@ -95,8 +99,8 @@ public class SecurityConfig {
             });
 
             // Content-Security-Policy: default-src 'none'
-//            headers.contentSecurityPolicy(contentSecurityPolicyConfig ->
-//                                                  contentSecurityPolicyConfig.policyDirectives(contentSecurityPolicy));
+            headers.contentSecurityPolicy(contentSecurityPolicyConfig ->
+                                                  contentSecurityPolicyConfig.policyDirectives(contentSecurityPolicy));
 
             // X-Content-Type-Options: nosniff
             headers.contentTypeOptions(contentTypeOptionsConfig -> {
