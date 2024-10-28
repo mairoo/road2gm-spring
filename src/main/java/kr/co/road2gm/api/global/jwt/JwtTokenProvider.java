@@ -33,28 +33,33 @@ public class JwtTokenProvider {
     private String secret;
 
     @Value("${jwt.access-token-expires-in}")
-    private long accessTokenValidityInMilliseconds;
+    private long accessTokenValidity;
 
     @Value("${jwt.refresh-token-expires-in}")
-    private long refreshTokenValidityInMilliseconds;
+    private long refreshTokenValidity;
 
-    private SecretKey secretKey;
+    private SecretKey key;
+
+    private Map<String, Object> headers;
 
     @PostConstruct
+    // 빈 컴포넌트 객체 생성자 후작업으로 멤버 변수 초기화
     public void init() {
-        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        // SecretKey key = Jwts.SIG.HS512.key().build();
+        // 위와 같이 키를 생성할 경우 서버 재부팅 시 액세스 토큰 검증 문제가 있을 수 있다.
+        key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+
+        headers = new HashMap<>();
+        headers.put("typ", JWT_TYPE);
+        headers.put("alg", JWT_ALGORITHM);
     }
 
     public String createAccessToken(String username) {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("typ", JWT_TYPE);
-        headers.put("alg", JWT_ALGORITHM);
-
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", username);
+        claims.put("sub", username);
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
+        Date validity = new Date(now.getTime() + accessTokenValidity * 1000L);
 
         return Jwts.builder()
                 .header()
@@ -63,17 +68,13 @@ public class JwtTokenProvider {
                 .claims(claims)
                 .issuedAt(now)
                 .expiration(validity)
-                .signWith(secretKey)
+                .signWith(key)
                 .compact();
     }
 
     public String createRefreshToken() {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("typ", JWT_TYPE);
-        headers.put("alg", JWT_ALGORITHM);
-
         Date now = new Date();
-        Date validity = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
+        Date validity = new Date(now.getTime() + refreshTokenValidity * 1000L);
 
         return Jwts.builder()
                 .header()
@@ -81,27 +82,27 @@ public class JwtTokenProvider {
                 .and()
                 .issuedAt(now)
                 .expiration(validity)
-                .signWith(secretKey)
+                .signWith(key)
                 .compact();
     }
 
-    public Optional<String> getUsername(String token) {
+    public Optional<String> validateToken(String jws) {
         try {
-            Jws<Claims> jws = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            Jws<Claims> parsed = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(jws);
 
-            return Optional.ofNullable(jws.getPayload().getSubject());
-        } catch (SignatureException | DecodingException | ExpiredJwtException | MalformedJwtException |
-                 UnsupportedJwtException | SecurityException | IllegalArgumentException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return Optional.ofNullable(parsed.getPayload().getSubject());
+        } catch (SignatureException | DecodingException ex) {
+            // 잘못된 비밀키
+            throw new RuntimeException("Invalid JWT signature");
+        } catch (ExpiredJwtException ex) {
+            // 만료된 토큰
+            throw new RuntimeException("Expired JWT token");
+        } catch (UnsupportedJwtException | MalformedJwtException | SecurityException | IllegalArgumentException ex) {
+            // 토큰 형식 오류
+            throw new RuntimeException("Invalid JWT token");
         }
     }
 
