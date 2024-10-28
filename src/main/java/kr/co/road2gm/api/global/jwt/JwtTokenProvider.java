@@ -54,10 +54,7 @@ public class JwtTokenProvider {
         headers.put("alg", JWT_ALGORITHM);
     }
 
-    public String createAccessToken(String username) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("sub", username);
-
+    public String createAccessToken(String subject) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidity * 1000L);
 
@@ -65,7 +62,7 @@ public class JwtTokenProvider {
                 .header()
                 .add(headers)
                 .and()
-                .claims(claims)
+                .subject(subject) // 액세스 토큰에만 sub = username 존재
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(key)
