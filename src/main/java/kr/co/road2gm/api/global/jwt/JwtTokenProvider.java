@@ -58,11 +58,19 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidity * 1000L);
 
+        // 예약 클레임
+        // iss, sub, aud, exp, nbf, iat, jti
+
+        // 커스텀 클레임 설정
+        // HashMap<String, String> claims = new HashMap<>();
+        // claims.put("username", subject);
+
         return Jwts.builder()
                 .header()
                 .add(headers)
                 .and()
                 .subject(subject) // 액세스 토큰에만 sub = username 존재
+                // .claims(claims)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(key)
@@ -89,6 +97,9 @@ public class JwtTokenProvider {
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(jws);
+
+            // 커스텀 클레임 읽을 때 타입 명시
+            // String username = parsed.getPayload().get("username", String.class);
 
             return Optional.ofNullable(parsed.getPayload().getSubject());
         } catch (SignatureException | DecodingException ex) {
