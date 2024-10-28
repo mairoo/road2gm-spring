@@ -122,7 +122,7 @@ public class JwtTokenProvider {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (header != null && header.startsWith("Bearer ")) {
-            return header.split(" ")[1].trim();
+            return header.substring(7).trim();
         }
 
         return null;
