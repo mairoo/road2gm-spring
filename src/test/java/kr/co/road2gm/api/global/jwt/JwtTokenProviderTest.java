@@ -20,6 +20,5 @@ class JwtTokenProviderTest {
         assertThat(refreshToken).isNotBlank();
 
         assertThat(jwtTokenProvider.validateToken(accessToken)).hasValue("admin");
-        assertThat(jwtTokenProvider.validateToken(refreshToken)).isNotPresent();
     }
 }

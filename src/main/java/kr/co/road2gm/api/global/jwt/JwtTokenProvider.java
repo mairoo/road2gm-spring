@@ -13,10 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -34,9 +31,6 @@ public class JwtTokenProvider {
 
     @Value("${jwt.access-token-expires-in}")
     private long accessTokenValidity;
-
-    @Value("${jwt.refresh-token-expires-in}")
-    private long refreshTokenValidity;
 
     private SecretKey key;
 
@@ -78,17 +72,12 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken() {
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + refreshTokenValidity * 1000L);
+        // 리프레시 토큰은 username 같은 개인정보를 담고 있지 않다.
+        // 리프레시 토큰은 어차피 서버 DB에 저장하고 검증하므로, JWT의 자체 검증 기능이 불필요하다.
+        // 랜덤 문자열은 필요할 때 즉시 폐기하거나 새로 발급할 수 있다.
+        // DB에서 관리하므로 만료 시간도 더 유연하게 설정 가능하다.
 
-        return Jwts.builder()
-                .header()
-                .add(headers)
-                .and()
-                .issuedAt(now)
-                .expiration(validity)
-                .signWith(key)
-                .compact();
+        return UUID.randomUUID().toString();
     }
 
     public Optional<String> validateToken(String jws) {
