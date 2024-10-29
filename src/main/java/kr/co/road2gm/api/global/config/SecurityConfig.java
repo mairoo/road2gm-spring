@@ -2,6 +2,7 @@ package kr.co.road2gm.api.global.config;
 
 import kr.co.road2gm.api.global.error.handlers.JwtAccessDeniedHandler;
 import kr.co.road2gm.api.global.error.handlers.JwtAuthenticationEntryPoint;
+import kr.co.road2gm.api.global.jwt.JwtAuthenticationFilter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -46,6 +48,8 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     private final JwtAccessDeniedHandler accessDeniedHandler;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // WebSecurityConfigurerAdapter 상속 구현 방식은 더 이상 사용하지 않음
     // 현재는 @Bean 컴포넌트 설정 방식
@@ -130,6 +134,9 @@ public class SecurityConfig {
                                            // anyRequest().authenticated() - rememberMe login enabled (form login)
                                            .anyRequest().fullyAuthenticated() //rememberMe disabled
                                   );
+
+        // Add JWT token filter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

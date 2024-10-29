@@ -22,6 +22,10 @@ public class JwtTokenProvider {
 
     public static final String JWT_ALGORITHM = "HS512";
 
+    public static final String BEARER_PREFIX = "Bearer ";
+
+    public static final String X_AUTH_TOKEN = "X-Auth-Token";
+
     // 알고리즘에 따라 키 길이 변경
     // HS256: openssl rand -hex 24
     // HS384: openssl rand -hex 32
@@ -107,7 +111,7 @@ public class JwtTokenProvider {
         // Header format
         // Non-standard header
         // X-Auth-Token : JWTString=
-        final String header = request.getHeader("X-AUTH-TOKEN");
+        final String header = request.getHeader(X_AUTH_TOKEN);
 
         if (header != null && !header.isBlank()) {
             return header;
@@ -121,8 +125,8 @@ public class JwtTokenProvider {
         // Authorization: Bearer JWTString=
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7).trim();
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            return header.substring(BEARER_PREFIX.length()).trim();
         }
 
         return null;
