@@ -22,7 +22,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         log.error("Access denied error: {}", accessDeniedException.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.FORBIDDEN.value(),
+        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.FORBIDDEN,
                                                        "접근 권한이 없습니다",
                                                        accessDeniedException.getMessage(),
                                                        request.getRequestURI());

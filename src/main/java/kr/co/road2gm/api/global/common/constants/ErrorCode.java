@@ -6,17 +6,18 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // Common
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "Invalid Input Value"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C002", "Internal Server Error"),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "올바르지 않은 입력값"),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C002", "내부 서버 오류"),
 
     // Entity
-    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E001", "Entity Not Found"),
-    DUPLICATE_ENTITY(HttpStatus.CONFLICT, "E002", "Entity Already Exists"),
-    INVALID_ENTITY_STATUS(HttpStatus.BAD_REQUEST, "E003", "Invalid Entity Status"),
+    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E001", "엔티티 없음"),
+    DUPLICATE_ENTITY(HttpStatus.CONFLICT, "E002", "이미 존재하는 엔티티"),
+    INVALID_ENTITY_STATUS(HttpStatus.BAD_REQUEST, "E003", "잘못된 엔티티 상태"),
 
     // Auth
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "Unauthorized"),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "A002", "Access Denied"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증실패"),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "A002", "잘못된 액세스 토큰"),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "A003", "접근불가"),
 
     // Business
     INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "B001", "Insufficient Balance"),

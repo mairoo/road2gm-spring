@@ -1,5 +1,6 @@
 package kr.co.road2gm.api.global.error;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -10,11 +11,17 @@ import java.util.List;
 
 @Getter
 public class ErrorResponse {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime timestamp;
+
     private final int status;
+
+    private final String title;
+
     private final String message;
-    private final String details;
+
     private final String path;
+
     private final List<FieldError> errors;
 
     @Builder
@@ -22,44 +29,45 @@ public class ErrorResponse {
     // - 특정 필드만 선택적으로 빌더에 포함 가능
     // - 여러 개의 빌더 패턴 구현 가능
     // - 생성자의 유효성 검증 로직 활용 가능
-    public ErrorResponse(int status, String message, String details, String path, List<FieldError> errors) {
+    public ErrorResponse(HttpStatus status, String title, String message, String path, List<FieldError> errors) {
         this.timestamp = LocalDateTime.now();
-        this.status = status;
+        this.status = status.value();
+        this.title = title;
         this.message = message;
-        this.details = details;
         this.path = path;
         this.errors = errors != null ? errors : List.of();
     }
 
     // 기본 에러 응답 생성을 위한 정적 팩토리 메서드
-    public static ErrorResponse of(int status, String message, String details, String path) {
+    public static ErrorResponse of(HttpStatus status, String title, String message, String path) {
         // 여기에서 생성자 레벨 빌더 사용
         return ErrorResponse.builder()
                 .status(status)
+                .title(title)
                 .message(message)
-                .details(details)
                 .path(path)
                 .errors(List.of())
                 .build();
     }
 
     // ValidationError가 있는 경우의 응답 생성을 위한 정적 팩토리 메서드
-    public static ErrorResponse of(int status, String message, String details, String path, List<FieldError> errors) {
+    public static ErrorResponse of(HttpStatus status, String title, String message, String path,
+                                   List<FieldError> errors) {
         return ErrorResponse.builder()
                 .status(status)
+                .title(title)
                 .message(message)
-                .details(details)
                 .path(path)
                 .errors(errors)
                 .build();
     }
 
     // BindingResult로부터 ErrorResponse를 생성하는 정적 팩토리 메서드
-    public static ErrorResponse of(BindingResult bindingResult, HttpStatus status, String path) {
+    public static ErrorResponse of(HttpStatus status, String path, BindingResult bindingResult) {
         return ErrorResponse.builder()
-                .status(status.value())
-                .message("Validation failed")
-                .details("Field validation error")
+                .status(status)
+                .title("입력 필드 검증 실패")
+                .message("필드 입력값 양식이 올바르지 않습니다.")
                 .path(path)
                 .errors(FieldError.of(bindingResult))
                 .build();

@@ -32,9 +32,6 @@ public class User extends BaseDateTime implements UserDetails  {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "refresh_token")
-    private String refreshToken;
-
     @Column(name = "remember_me")
     private boolean rememberMe;
 

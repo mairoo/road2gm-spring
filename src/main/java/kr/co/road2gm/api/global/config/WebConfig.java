@@ -44,6 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * CORS 설정 소스 빈
+     * 스프링 시큐리티가 아니라 Web MVC 설정에서 빈 컴포넌트 클래스 정의
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

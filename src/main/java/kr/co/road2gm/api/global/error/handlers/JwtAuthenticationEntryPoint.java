@@ -22,7 +22,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          AuthenticationException authException) throws IOException, ServletException {
         log.error("Unauthorized error: {}", authException.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(),
+        ErrorResponse errorResponse = ErrorResponse.of(HttpStatus.UNAUTHORIZED,
                                                        "인증에 실패했습니다",
                                                        authException.getMessage(),
                                                        request.getRequestURI());
