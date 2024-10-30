@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -70,8 +71,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
-                                       "잘못된 요청",
+                                       "요청 본문 오류",
                                        "요청 본문이 없습니다.",
+                                       servletRequest.getRequestURI()));
+    }
+
+    @Override
+    protected ResponseEntity<Object>
+    handleHttpMessageNotWritable(@NonNull HttpMessageNotWritableException ex,
+                                 @NonNull HttpHeaders headers,
+                                 @NonNull HttpStatusCode status,
+                                 @NonNull WebRequest request) {
+        super.handleHttpMessageNotWritable(ex, headers, status, request);
+
+        HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+
+        return ResponseEntity
+                .internalServerError()
+                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR,
+                                       "응답 객체 직렬화 실패",
+                                       "응답 객체를 JSON 직렬화하지 못했습니다.",
                                        servletRequest.getRequestURI()));
     }
 
