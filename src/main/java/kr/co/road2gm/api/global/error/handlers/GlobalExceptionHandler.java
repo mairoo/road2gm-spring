@@ -30,10 +30,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                  @NonNull WebRequest request) {
         super.handleMethodArgumentNotValid(ex, headers, status, request);
 
+        HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+
         return ResponseEntity
                 .badRequest()
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
-                                       request.getContextPath(),
+                                       servletRequest.getRequestURI(),
                                        ex.getBindingResult()));
     }
 
