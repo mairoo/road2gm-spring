@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -69,6 +70,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
                                        "잘못된 요청",
                                        "요청 본문이 없습니다.",
+                                       servletRequest.getRequestURI()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse>
+    handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                     WebRequest request) {
+        HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
+
+        String parameterName = ex.getName();
+        String invalidValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+
+        String message = String.format(
+                "파라미터 '%s'의 값 '%s'을(를) %s(으)로 변환할 수 없습니다",
+                parameterName, invalidValue, requiredType
+                                      );
+
+        return ResponseEntity
+                .badRequest()
+                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
+                                       "잘못된 URI 파라미터",
+                                       message,
                                        servletRequest.getRequestURI()));
     }
 
