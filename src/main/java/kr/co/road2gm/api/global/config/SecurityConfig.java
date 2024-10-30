@@ -61,7 +61,7 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable); // 스프링 시큐리티 6.1 이상 설정 방식
         // http.formLogin().disable(); // 스프링 시큐리티 6.0 설정 방식
         // http.logout()
-        // http.rememberMe()
+        // http.rememberMe() // 전통적 세션 기반 인증에서 쿠키를 통한 세션 유지 (REST API 서버에서는 유효하지 않음)
 
         // HTTP Basic 인증 (사용 안 함)
         http.httpBasic(AbstractHttpConfigurer::disable);
