@@ -1,6 +1,7 @@
 package kr.co.road2gm.api.global.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,10 @@ public class ErrorResponse {
 
     private final String message;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final String path;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<FieldError> errors;
 
     @Builder
