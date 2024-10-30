@@ -32,13 +32,13 @@ public class BookController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(ApiResponse.of(books));
+        return ResponseEntity.ok(ApiResponse.success(books));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BookResponse>> getBook(@PathVariable Long id) {
         BookResponse response = bookService.findMember(id);
-        return ResponseEntity.ok(ApiResponse.of(response));
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     // 생성 성공 응답
