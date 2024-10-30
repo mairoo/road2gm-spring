@@ -23,7 +23,7 @@ public class AuthService {
     public Optional<AccessTokenResponse>
     authenticate(PasswordGrantRequest request,
                  HttpServletRequest servletRequest,
-                 HttpServletResponse serveltResponse) {
+                 HttpServletResponse servletResponse) {
         return Optional.empty();
     }
 
