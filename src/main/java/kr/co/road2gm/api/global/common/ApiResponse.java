@@ -1,11 +1,14 @@
 package kr.co.road2gm.api.global.common;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
 
 // 성공과 실패 타입을 분리하여 Optional 처리 시 타입 호환 문제 해결
 // .map()과 .orElseGet()이 같은 타입을 반환해야 하는데, 구체 클래스로는 타입 불일치 발생
@@ -26,23 +29,28 @@ public class ApiResponse<T, E> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
 
+    @JsonProperty("timestamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
+
     public ApiResponse(T data,
                        E error,
                        String message) {
         this.data = data;
         this.error = error;
         this.message = message;
+        this.timestamp = LocalDateTime.now();
     }
 
     public static <T, E> ApiResponse<T, E> success(T data) {
-        return new ApiResponse<T, E>(data, null, "성공");
+        return new ApiResponse<>(data, null, "성공");
     }
 
     public static <T, E> ApiResponse<T, E> success(T data, String message) {
-        return new ApiResponse<T, E>(data, null, message);
+        return new ApiResponse<>(data, null, message);
     }
 
     public static <T, E> ApiResponse<T, E> error(E error) {
-        return new ApiResponse<T, E>(null, error, null);
+        return new ApiResponse<>(null, error, null);
     }
 }

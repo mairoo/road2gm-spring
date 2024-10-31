@@ -1,29 +1,30 @@
 package kr.co.road2gm.api.global.error;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 public class ErrorResponse {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private final LocalDateTime timestamp;
-
+    @JsonProperty("status")
     private final int status;
 
+    @JsonProperty("title")
     private final String title;
 
+    @JsonProperty("message")
     private final String message;
 
+    @JsonProperty("path")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final String path;
 
+    @JsonProperty("errors")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<FieldError> errors;
 
@@ -33,12 +34,11 @@ public class ErrorResponse {
     // - 여러 개의 빌더 패턴 구현 가능
     // - 생성자의 유효성 검증 로직 활용 가능
     public ErrorResponse(HttpStatus status, String title, String message, String path, List<FieldError> errors) {
-        this.timestamp = LocalDateTime.now();
         this.status = status.value();
         this.title = title;
         this.message = message;
         this.path = path;
-        this.errors = errors != null ? errors : List.of();
+        this.errors = errors;
     }
 
     // 기본 에러 응답 생성을 위한 정적 팩토리 메서드
