@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.service.AuthService;
 import kr.co.road2gm.api.global.common.ApiResponse;
+import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.ErrorResponse;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +42,8 @@ public class AuthController {
           HttpServletResponse servletResponse) {
         return authService.authenticate(request, servletRequest, servletResponse)
                 .map(response -> ResponseEntity.ok(ApiResponse.success(response)))
-                .orElseGet(() -> ResponseEntity.ok(ApiResponse.error(
-                        ErrorResponse.of(HttpStatus.UNAUTHORIZED,
-                                         "로그인 실패",
-                                         "아이디 또는 비밀번호가 올바르지 않습니다.",
-                                         servletRequest.getRequestURI()))));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error(ErrorResponse.of(ErrorCode.WRONG_USERNAME_OR_PASSWORD,
+                                                                 servletRequest.getRequestURI()))));
     }
 }

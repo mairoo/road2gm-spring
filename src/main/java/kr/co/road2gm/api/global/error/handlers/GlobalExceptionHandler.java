@@ -1,6 +1,7 @@
 package kr.co.road2gm.api.global.error.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.ErrorResponse;
 import kr.co.road2gm.api.global.error.exception.BusinessException;
 import lombok.NonNull;
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
+                .body(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
                                        servletRequest.getRequestURI(),
                                        ex.getBindingResult()));
     }
@@ -52,9 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ErrorResponse.of(HttpStatus.NOT_FOUND,
-                                       "리소스 없음",
-                                       "요청 경로가 올바르지 않습니다.",
+                .body(ErrorResponse.of(ErrorCode.RESOURCE_NOT_FOUND,
                                        servletRequest.getRequestURI()));
     }
 
@@ -70,9 +69,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
-                                       "요청 본문 오류",
-                                       "요청 본문이 없습니다.",
+                .body(ErrorResponse.of(ErrorCode.MESSAGE_BODY_NOT_FOUND,
                                        servletRequest.getRequestURI()));
     }
 
@@ -88,9 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .internalServerError()
-                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR,
-                                       "응답 객체 직렬화 실패",
-                                       "응답 객체를 JSON 직렬화하지 못했습니다.",
+                .body(ErrorResponse.of(ErrorCode.JSON_SERIALIZATION_FAILURE,
                                        servletRequest.getRequestURI()));
     }
 
@@ -121,12 +116,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse>
     handleBusinessException(BusinessException e,
                             HttpServletRequest request) {
-        log.error("BusinessException: {}", e.getMessage(), e);
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ErrorResponse.of(HttpStatus.CONFLICT,
-                                       "business exception",
-                                       e.getMessage(),
+        return ResponseEntity
+                .status(e.getErrorCode().getStatus())
+                .body(ErrorResponse.of(e.getErrorCode(),
                                        request.getRequestURI()));
     }
 
@@ -134,12 +126,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse>
     handleException(Exception e,
                     HttpServletRequest request) {
-        log.error("Exception: {}", e.getMessage(), e);
+        log.error(e.getMessage(), e);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR,
-                                       "예기치 못한 오류",
-                                       e.getMessage(),
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorResponse.of(ErrorCode.UNEXPECTED_ERROR,
                                        request.getRequestURI()));
     }
 }

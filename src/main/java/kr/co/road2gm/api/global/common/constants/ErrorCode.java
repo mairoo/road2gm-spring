@@ -6,30 +6,25 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // Common
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "올바르지 않은 입력값"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C002", "내부 서버 오류"),
-
-    // Entity
-    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "E001", "엔티티 없음"),
-    DUPLICATE_ENTITY(HttpStatus.CONFLICT, "E002", "이미 존재하는 엔티티"),
-    INVALID_ENTITY_STATUS(HttpStatus.BAD_REQUEST, "E003", "잘못된 엔티티 상태"),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "입력 필드 검증 실패", "필드 입력값 양식이 올바르지 않습니다."),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "리소스 없음", "요청 경로가 올바르지 않습니다."),
+    MESSAGE_BODY_NOT_FOUND(HttpStatus.BAD_REQUEST, "요청 본문 없음", "HTTP 요청 본문이 없거나 올바르지 않습니다."),
+    JSON_SERIALIZATION_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "응답 객체 직렬화 실패", "응답 객체를 JSON 직렬화하지 못했습니다"),
+    UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 오류", "관리자에게 문의하세요."),
 
     // Auth
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "잘못된 아이디 또는 비밀번호"),
-    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "A002", "잘못된 액세스 토큰"),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "A003", "접근불가"),
-
-    // Business
-    INSUFFICIENT_BALANCE(HttpStatus.BAD_REQUEST, "B001", "Insufficient Balance"),
-    EXPIRED_DATA(HttpStatus.BAD_REQUEST, "B002", "Data Has Expired");
+    WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "인증 실패", "잘못된 아이디 또는 비밀번호입니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "액세스 토큰 만료", "액세스 토큰이 만료되었습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰 만료", "리프레시 토큰이 만료되었습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 불가", "권한이 없습니다.");
 
     private final HttpStatus status;
-    private final String code;
+    private final String title;
     private final String message;
 
-    ErrorCode(HttpStatus status, String code, String message) {
+    ErrorCode(HttpStatus status, String title, String message) {
         this.status = status;
-        this.code = code;
+        this.title = title;
         this.message = message;
     }
 }
