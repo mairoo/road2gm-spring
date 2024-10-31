@@ -41,7 +41,7 @@ public class AccessTokenResponse {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
     }
-
+    
     public AccessTokenResponse(String accessToken,
                                Integer expiresIn,
                                String refreshToken) {

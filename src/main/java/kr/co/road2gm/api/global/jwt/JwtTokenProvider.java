@@ -36,7 +36,7 @@ public class JwtTokenProvider {
     private String secret;
 
     @Value("${jwt.access-token-expires-in}")
-    private long accessTokenValidity;
+    private int accessTokenValidity;
 
     private SecretKey key;
 

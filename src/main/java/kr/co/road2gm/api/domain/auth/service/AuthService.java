@@ -1,7 +1,5 @@
 package kr.co.road2gm.api.domain.auth.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.User;
@@ -9,8 +7,10 @@ import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
+import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +22,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
+    private final JwtTokenProvider jwtTokenProvider;
+
     private final UserRepository userRepository;
 
     private final RefreshTokenRepository refreshTokenRepository;
+    @Value("${jwt.access-token-expires-in}")
+    private int accessTokenValidity;
 
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Optional<AccessTokenResponse>
-    authenticate(PasswordGrantRequest request,
-                 HttpServletRequest servletRequest,
-                 HttpServletResponse servletResponse) {
-
-        // 컨트롤러에서 오류는 오류 응답 객체 분기하여 반환 처리
-        // 서비스에서 오류는 그대로 예외 throw 후 GlobalExceptionHandler 메소드에서 처리
+    authenticate(PasswordGrantRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
@@ -43,14 +42,12 @@ public class AuthService {
             throw new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
         }
 
-        return Optional.empty();
-    }
+        // 액세스 토큰은 별도로 서버에 저장 안 함
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
-    public void issueAccessToken() {
+        // 리프레시 토큰은 HttpOnly, Secure, SameSite=Strict 전송, RDBMS 또는 Redis 저장
+        String refreshToken = jwtTokenProvider.createRefreshToken();
 
-    }
-
-    public void issueRefreshToken() {
-
+        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, refreshToken));
     }
 }
