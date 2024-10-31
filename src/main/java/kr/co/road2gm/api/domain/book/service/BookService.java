@@ -22,11 +22,13 @@ public class BookService {
     //update (수정)
     //delete/remove (삭제)
 
-    public List<BookResponse> findAllBooks() {
+    public List<BookResponse>
+    findAllBooks() {
         return bookRepository.findAll().stream().map(BookResponse::new).toList();
     }
 
-    public BookResponse findMember(Long id) {
+    public BookResponse
+    findMember(Long id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException());
         return new BookResponse(book);

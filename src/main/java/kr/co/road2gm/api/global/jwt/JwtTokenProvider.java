@@ -42,7 +42,8 @@ public class JwtTokenProvider {
 
     @PostConstruct
     // 빈 컴포넌트 객체 생성자 후작업으로 멤버 변수 초기화
-    public void init() {
+    public void
+    init() {
         // SecretKey key = Jwts.SIG.HS512.key().build();
         // 위와 같이 키를 생성할 경우 서버 재부팅 시 액세스 토큰 검증 문제가 있을 수 있다.
         key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
@@ -52,7 +53,8 @@ public class JwtTokenProvider {
         headers.put("alg", JWT_ALGORITHM);
     }
 
-    public String createAccessToken(String subject) {
+    public String
+    createAccessToken(String subject) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidity * 1000L);
 
@@ -75,7 +77,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String
+    createRefreshToken() {
         // 리프레시 토큰은 username 같은 개인정보를 담고 있지 않다.
         // 리프레시 토큰은 어차피 서버 DB에 저장하고 검증하므로, JWT의 자체 검증 기능이 불필요하다.
         // 랜덤 문자열은 필요할 때 즉시 폐기하거나 새로 발급할 수 있다.
@@ -84,7 +87,8 @@ public class JwtTokenProvider {
         return UUID.randomUUID().toString();
     }
 
-    public Optional<String> validateToken(String jws) {
+    public Optional<String>
+    validateToken(String jws) {
         try {
             Jws<Claims> parsed = Jwts.parser()
                     .verifyWith(key)
@@ -107,7 +111,8 @@ public class JwtTokenProvider {
         }
     }
 
-    public String getXAuthToken(HttpServletRequest request) {
+    public String
+    getXAuthToken(HttpServletRequest request) {
         // Header format
         // Non-standard header
         // X-Auth-Token : JWTString=
@@ -119,7 +124,8 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public String getBearerToken(HttpServletRequest request) {
+    public String
+    getBearerToken(HttpServletRequest request) {
         // Header format
         // RFC 7235 standard header
         // Authorization: Bearer JWTString=

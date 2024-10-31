@@ -15,7 +15,7 @@ public enum ErrorCode {
     INVALID_ENTITY_STATUS(HttpStatus.BAD_REQUEST, "E003", "잘못된 엔티티 상태"),
 
     // Auth
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증실패"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "잘못된 아이디 또는 비밀번호"),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "A002", "잘못된 액세스 토큰"),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "A003", "접근불가"),
 

@@ -18,7 +18,8 @@ import java.io.IOException;
 @Slf4j
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
+    public void
+    handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         log.error("Access denied error: {}", accessDeniedException.getMessage());
 

@@ -25,7 +25,8 @@ public class BookController {
     // delete{Resource}
 
     @GetMapping("")
-    public ResponseEntity<?> getAllBooks() {
+    public ResponseEntity<?>
+    getAllBooks() {
         List<BookResponse> books = bookService.findAllBooks();
 
         if (books.isEmpty()) {
@@ -36,7 +37,8 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBook(@PathVariable Long id) {
+    public ResponseEntity<?>
+    getBook(@PathVariable Long id) {
         BookResponse response = bookService.findMember(id);
         return ResponseEntity.ok(ApiResponse.success(response));
     }

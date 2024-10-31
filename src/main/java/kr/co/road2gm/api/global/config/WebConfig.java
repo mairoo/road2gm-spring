@@ -36,7 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
      * 특별한 경우에만 컨트롤러에 선택적으로 사용 가능
      */
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void
+    addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedOriginPatterns(allowedOrigins.split(","))
                 .allowedMethods(allowedMethods.split(",")).allowedHeaders(allowedHeaders.split(","))
                 .allowCredentials(true).maxAge(maxAge);
@@ -47,7 +48,8 @@ public class WebConfig implements WebMvcConfigurer {
      * 스프링 시큐리티가 아니라 Web MVC 설정에서 빈 컴포넌트 클래스 정의
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource
+    corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of(allowedMethods.split(",")));

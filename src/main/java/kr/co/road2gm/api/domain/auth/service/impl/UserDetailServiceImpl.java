@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class UserDetailServiceImpl implements UserDetailsService {
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails
+    loadUserByUsername(String username) throws UsernameNotFoundException {
         return User.builder("test", "test", "test@example.com").build();
     }
 }

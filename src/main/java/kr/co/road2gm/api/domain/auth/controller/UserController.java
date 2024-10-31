@@ -13,7 +13,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/users")
-    public String index() {
+    public String
+    index() {
         return "users";
     }
 }
