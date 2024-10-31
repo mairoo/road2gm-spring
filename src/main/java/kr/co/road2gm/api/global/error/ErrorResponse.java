@@ -1,6 +1,6 @@
 package kr.co.road2gm.api.global.error;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
@@ -9,22 +9,24 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 public class ErrorResponse {
-    @JsonIgnore
+    @JsonProperty("status")
     private final int status;
 
-    @JsonIgnore
-    private final String message;
-
-    @JsonProperty("reason")
-    private final String reason;
+    @JsonProperty("timestamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 
     @JsonProperty("path")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final String path;
+
+    @JsonProperty("message")
+    private final String message;
 
     @JsonProperty("errors")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -36,26 +38,23 @@ public class ErrorResponse {
     // - 여러 개의 빌더 패턴 구현 가능
     // - 생성자의 유효성 검증 로직 활용 가능
     public ErrorResponse(HttpStatus status,
-                         String message,
-                         String reason,
                          String path,
+                         String message,
                          List<FieldError> errors) {
         this.status = status.value();
-        this.message = message;
-        this.reason = reason;
+        this.timestamp = LocalDateTime.now();
         this.path = path;
+        this.message = message;
         this.errors = errors;
     }
 
     public static ErrorResponse of(HttpStatus status,
-                                   String message,
-                                   String reason,
-                                   String path) {
+                                   String path,
+                                   String message) {
         return ErrorResponse.builder()
                 .status(status)
-                .message(message)
-                .reason(reason)
                 .path(path)
+                .message(message)
                 .errors(List.of())
                 .build();
     }
@@ -64,9 +63,8 @@ public class ErrorResponse {
                                    String path) {
         return ErrorResponse.builder()
                 .status(errorCode.getStatus())
-                .message(errorCode.getMessage())
-                .reason(errorCode.getReason())
                 .path(path)
+                .message(errorCode.getMessage())
                 .errors(List.of())
                 .build();
     }
@@ -76,9 +74,8 @@ public class ErrorResponse {
                                    BindingResult bindingResult) {
         return ErrorResponse.builder()
                 .status(errorCode.getStatus())
-                .message(errorCode.getMessage())
-                .reason(errorCode.getReason())
                 .path(path)
+                .message(errorCode.getMessage())
                 .errors(FieldError.of(bindingResult))
                 .build();
     }

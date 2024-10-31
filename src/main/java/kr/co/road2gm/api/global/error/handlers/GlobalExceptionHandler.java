@@ -1,7 +1,6 @@
 package kr.co.road2gm.api.global.error.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kr.co.road2gm.api.global.common.ApiResponse;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.ErrorResponse;
 import kr.co.road2gm.api.global.error.exception.ApiException;
@@ -37,9 +36,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.error(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE,
-                                       servletRequest.getRequestURI(),
-                                                         ex.getBindingResult())));
+                .body(ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, servletRequest.getRequestURI(),
+                                       ex.getBindingResult()));
     }
 
     @Override
@@ -54,8 +52,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.error(ErrorResponse.of(ErrorCode.RESOURCE_NOT_FOUND,
-                                                         servletRequest.getRequestURI())));
+                .body(ErrorResponse.of(ErrorCode.RESOURCE_NOT_FOUND, servletRequest.getRequestURI()));
     }
 
     @Override
@@ -70,8 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.error(ErrorResponse.of(ErrorCode.MESSAGE_BODY_NOT_FOUND,
-                                                         servletRequest.getRequestURI())));
+                .body(ErrorResponse.of(ErrorCode.MESSAGE_BODY_NOT_FOUND, servletRequest.getRequestURI()));
     }
 
     @Override
@@ -86,8 +82,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .internalServerError()
-                .body(ApiResponse.error(ErrorResponse.of(ErrorCode.JSON_SERIALIZATION_FAILURE,
-                                                         servletRequest.getRequestURI())));
+                .body(ErrorResponse.of(ErrorCode.JSON_SERIALIZATION_FAILURE, servletRequest.getRequestURI()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -100,17 +95,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String invalidValue = ex.getValue() != null ? ex.getValue().toString() : "null";
         String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
 
-        String message = String.format(
-                "파라미터 '%s'의 값 '%s'을(를) %s(으)로 변환할 수 없습니다",
-                parameterName, invalidValue, requiredType
-                                      );
+        String message = String.format("파라미터 '%s'의 값 '%s'을(를) %s(으)로 변환할 수 없습니다",
+                                       parameterName, invalidValue, requiredType);
 
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.error(ErrorResponse.of(HttpStatus.BAD_REQUEST,
-                                       "잘못된 URI 파라미터",
-                                       message,
-                                                         servletRequest.getRequestURI())));
+                .body(ErrorResponse.of(HttpStatus.BAD_REQUEST,
+                                       servletRequest.getRequestURI(),
+                                       message));
     }
 
     @ExceptionHandler(ApiException.class)
@@ -119,8 +111,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                        HttpServletRequest request) {
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
-                .body(ApiResponse.error(ErrorResponse.of(e.getErrorCode(),
-                                                         request.getRequestURI())));
+                .body(ErrorResponse.of(e.getErrorCode(), request.getRequestURI()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -131,7 +122,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(ErrorResponse.of(ErrorCode.UNEXPECTED_ERROR,
-                                                         request.getRequestURI())));
+                .body(ErrorResponse.of(ErrorCode.UNEXPECTED_ERROR, request.getRequestURI()));
     }
 }

@@ -45,7 +45,7 @@ public class AuthController {
         // 오류 객체 조건 분기 방식의 장점 - 명시적인 코드 흐름, 스택 트레이스 예외처리 오버헤드 없음
 
         return authService.authenticate(request, servletRequest, servletResponse)
-                .map(response -> ResponseEntity.ok(ApiResponse.success(response)))
+                .map(response -> ResponseEntity.ok(ApiResponse.of(response)))
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
 }

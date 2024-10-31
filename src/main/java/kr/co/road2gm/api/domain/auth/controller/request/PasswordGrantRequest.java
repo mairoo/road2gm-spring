@@ -28,11 +28,6 @@ public class PasswordGrantRequest {
     @NotBlank
     private String password;
 
-    @JsonProperty("captcha")
-    @NotNull
-    @NotBlank
-    private String captcha;
-
     @JsonProperty("scope")
     private String scope;
 
