@@ -7,6 +7,8 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import kr.co.road2gm.api.global.common.constants.ErrorCode;
+import kr.co.road2gm.api.global.error.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -101,13 +103,13 @@ public class JwtTokenProvider {
             return Optional.ofNullable(parsed.getPayload().getSubject());
         } catch (SignatureException | DecodingException ex) {
             // 잘못된 비밀키
-            throw new RuntimeException("Invalid JWT signature");
+            throw new ApiException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (ExpiredJwtException ex) {
             // 만료된 토큰
-            throw new RuntimeException("Expired JWT token");
+            throw new ApiException(ErrorCode.JWT_EXPIRED);
         } catch (UnsupportedJwtException | MalformedJwtException | SecurityException | IllegalArgumentException ex) {
             // 토큰 형식 오류
-            throw new RuntimeException("Invalid JWT token");
+            throw new ApiException(ErrorCode.INVALID_JWT);
         }
     }
 

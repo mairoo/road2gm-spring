@@ -14,9 +14,14 @@ public enum ErrorCode {
 
     // Auth
     WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "인증 실패", "잘못된 아이디 또는 비밀번호입니다."),
-    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "액세스 토큰 만료", "액세스 토큰이 만료되었습니다."),
+    INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "잘못된 서명 JWT", "JWT의 비밀키 서명이 올바르지 않습니다."),
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT 만료", "JWT 토큰이 만료되었습니다."),
+    INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT 형식 오류", "JWT 형식이 맞지 않습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰 만료", "리프레시 토큰이 만료되었습니다."),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 불가", "권한이 없습니다.");
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 불가", "권한이 없습니다."),
+
+    // Book
+    BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "책 없음", "책이 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -3,6 +3,8 @@ package kr.co.road2gm.api.domain.book.service;
 import kr.co.road2gm.api.domain.book.domain.Book;
 import kr.co.road2gm.api.domain.book.dto.BookResponse;
 import kr.co.road2gm.api.domain.book.repository.jpa.BookRepository;
+import kr.co.road2gm.api.global.common.constants.ErrorCode;
+import kr.co.road2gm.api.global.error.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ public class BookService {
     public BookResponse
     findMember(Long id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new ApiException(ErrorCode.BOOK_NOT_FOUND));
         return new BookResponse(book);
     }
 }
