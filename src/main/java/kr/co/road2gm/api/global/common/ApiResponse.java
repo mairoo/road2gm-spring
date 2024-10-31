@@ -1,24 +1,48 @@
 package kr.co.road2gm.api.global.common;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RequiredArgsConstructor
+// 성공과 실패 타입을 분리하여 Optional 처리 시 타입 호환 문제 해결
+// .map()과 .orElseGet()이 같은 타입을 반환해야 하는데, 구체 클래스로는 타입 불일치 발생
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
-public class ApiResponse<T> {
-    private final T data;
+public class ApiResponse<T, E> {
+    @JsonProperty("data")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private T data;
 
-    private final String message;
+    @JsonProperty("error")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private E error;
 
-    public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(data, "성공");
+    @JsonProperty("message")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String message;
+
+    public ApiResponse(T data,
+                       E error,
+                       String message) {
+        this.data = data;
+        this.error = error;
+        this.message = message;
     }
 
-    public static <T> ApiResponse<T> success(T data, String message) {
-        return new ApiResponse<>(data, message);
+    public static <T, E> ApiResponse<T, E> success(T data) {
+        return new ApiResponse<T, E>(data, null, "성공");
     }
 
-    public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>(null, message);
+    public static <T, E> ApiResponse<T, E> success(T data, String message) {
+        return new ApiResponse<T, E>(data, null, message);
+    }
+
+    public static <T, E> ApiResponse<T, E> error(E error) {
+        return new ApiResponse<T, E>(null, error, null);
     }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.service.AuthService;
+import kr.co.road2gm.api.global.common.ApiResponse;
 import kr.co.road2gm.api.global.error.ErrorResponse;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -33,18 +34,17 @@ public class AuthController {
     private int refreshTokenValidity;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> login(@Valid @RequestBody
-                                   PasswordGrantRequest request,
-                                   HttpServletRequest servletRequest,
-                                   HttpServletResponse servletResponse) {
-        authService.authenticate(request, servletRequest, servletResponse);
-
-        // Optional로 받아서 오류 시 오류 응답
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ErrorResponse.of(HttpStatus.UNAUTHORIZED,
-                                       "로그인 실패",
-                                       "아이디 또는 비밀번호가 올바르지 않습니다.",
-                                       servletRequest.getRequestURI()));
+    public ResponseEntity<?>
+    login(@Valid @RequestBody
+          PasswordGrantRequest request,
+          HttpServletRequest servletRequest,
+          HttpServletResponse servletResponse) {
+        return authService.authenticate(request, servletRequest, servletResponse)
+                .map(response -> ResponseEntity.ok(ApiResponse.success(response)))
+                .orElseGet(() -> ResponseEntity.ok(ApiResponse.error(
+                        ErrorResponse.of(HttpStatus.UNAUTHORIZED,
+                                         "로그인 실패",
+                                         "아이디 또는 비밀번호가 올바르지 않습니다.",
+                                         servletRequest.getRequestURI()))));
     }
 }
