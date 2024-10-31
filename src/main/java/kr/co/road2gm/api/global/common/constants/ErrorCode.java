@@ -19,12 +19,12 @@ public enum ErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 불가", "권한이 없습니다.");
 
     private final HttpStatus status;
-    private final String title;
     private final String message;
+    private final String reason;
 
-    ErrorCode(HttpStatus status, String title, String message) {
+    ErrorCode(HttpStatus status, String message, String reason) {
         this.status = status;
-        this.title = title;
         this.message = message;
+        this.reason = reason;
     }
 }

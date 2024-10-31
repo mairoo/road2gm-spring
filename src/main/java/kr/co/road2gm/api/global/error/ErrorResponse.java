@@ -1,5 +1,6 @@
 package kr.co.road2gm.api.global.error;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
@@ -12,14 +13,14 @@ import java.util.List;
 
 @Getter
 public class ErrorResponse {
-    @JsonProperty("status")
+    @JsonIgnore
     private final int status;
 
-    @JsonProperty("title")
-    private final String title;
-
-    @JsonProperty("message")
+    @JsonIgnore
     private final String message;
+
+    @JsonProperty("reason")
+    private final String reason;
 
     @JsonProperty("path")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -35,25 +36,25 @@ public class ErrorResponse {
     // - 여러 개의 빌더 패턴 구현 가능
     // - 생성자의 유효성 검증 로직 활용 가능
     public ErrorResponse(HttpStatus status,
-                         String title,
                          String message,
+                         String reason,
                          String path,
                          List<FieldError> errors) {
         this.status = status.value();
-        this.title = title;
         this.message = message;
+        this.reason = reason;
         this.path = path;
         this.errors = errors;
     }
 
     public static ErrorResponse of(HttpStatus status,
-                                   String title,
                                    String message,
+                                   String reason,
                                    String path) {
         return ErrorResponse.builder()
                 .status(status)
-                .title(title)
                 .message(message)
+                .reason(reason)
                 .path(path)
                 .errors(List.of())
                 .build();
@@ -63,8 +64,8 @@ public class ErrorResponse {
                                    String path) {
         return ErrorResponse.builder()
                 .status(errorCode.getStatus())
-                .title(errorCode.getTitle())
                 .message(errorCode.getMessage())
+                .reason(errorCode.getReason())
                 .path(path)
                 .errors(List.of())
                 .build();
@@ -75,8 +76,8 @@ public class ErrorResponse {
                                    BindingResult bindingResult) {
         return ErrorResponse.builder()
                 .status(errorCode.getStatus())
-                .title(errorCode.getTitle())
                 .message(errorCode.getMessage())
+                .reason(errorCode.getReason())
                 .path(path)
                 .errors(FieldError.of(bindingResult))
                 .build();

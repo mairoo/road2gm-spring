@@ -3,6 +3,7 @@ package kr.co.road2gm.api.global.common;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import kr.co.road2gm.api.global.error.ErrorResponse;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
 public class ApiResponse<T, E> {
+    @JsonProperty("status")
+    private int status;
+
+    @JsonProperty("timestamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
+
+    @JsonProperty("message")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String message;
+
     @JsonProperty("data")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T data;
@@ -25,32 +37,30 @@ public class ApiResponse<T, E> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private E error;
 
-    @JsonProperty("message")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String message;
-
-    @JsonProperty("timestamp")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timestamp;
-
     public ApiResponse(T data,
                        E error,
+                       int status,
                        String message) {
         this.data = data;
         this.error = error;
+        this.status = status;
         this.message = message;
         this.timestamp = LocalDateTime.now();
     }
 
     public static <T, E> ApiResponse<T, E> success(T data) {
-        return new ApiResponse<>(data, null, "성공");
+        return new ApiResponse<>(data, null, 200, "OK");
     }
 
     public static <T, E> ApiResponse<T, E> success(T data, String message) {
-        return new ApiResponse<>(data, null, message);
+        return new ApiResponse<>(data, null, 200, message);
     }
 
     public static <T, E> ApiResponse<T, E> error(E error) {
-        return new ApiResponse<>(null, error, null);
+        if (error instanceof ErrorResponse errorResponse) {
+            return new ApiResponse<>(null, error, errorResponse.getStatus(), errorResponse.getMessage());
+        }
+
+        return new ApiResponse<>(null, error, 500, null);
     }
 }
