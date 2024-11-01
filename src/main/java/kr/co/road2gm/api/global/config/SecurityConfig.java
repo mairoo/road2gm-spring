@@ -116,6 +116,8 @@ public class SecurityConfig {
 
         // Stateless Session
         http.sessionManagement(session -> {
+            // 스프링 시큐리티가  무조건 세션을 생성하지 않는다는 의미가 아님
+            // 인증 처리 관점에서 세션을 생성하지 않음과 동시에 세션을 이용한 방식으로 인증을 처리하지 않는다는 뜻
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             // Login attempt throttling works in spite of stateless JWT authentication
             // maximumSessions(1): Prevents a user from logging in multiple times.
