@@ -13,7 +13,7 @@ public class CookieService {
     @Value("${jwt.refresh-token-expires-in}")
     private int refreshTokenValidity;
 
-    public Cookie createRefreshTokenCookie(String refreshToken) {
+    public Cookie create(String refreshToken) {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
 
         cookie.setHttpOnly(true);
@@ -21,6 +21,17 @@ public class CookieService {
         cookie.setPath("/");
         cookie.setMaxAge(refreshTokenValidity);
         cookie.setAttribute("SameSite", "Strict");
+
+        return cookie;
+    }
+
+    public Cookie invalidate() {
+        Cookie cookie = new Cookie("refreshToken", null);
+
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
 
         return cookie;
     }

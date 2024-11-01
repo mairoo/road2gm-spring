@@ -18,11 +18,20 @@ public class RefreshToken extends BaseDateTime {
     @Column(name = "id")
     private Long id;
 
+    // 리프레시 토큰은 역정규화(deNormalization) - 향후 Redis 기반으로 변경될 수 있음
+    @Column(name = "username")
+    private String username;
+
     @Column(name = "token")
     private String token;
 
-    public static RefreshTokenBuilder builder(String token) {
+    @Column(columnDefinition = "CHAR(39)")
+    private String ipAddress;
+
+    public static RefreshTokenBuilder builder(String username, String token, String ipAddress) {
         return new RefreshTokenBuilder()
-                .token(token);
+                .username(username)
+                .token(token)
+                .ipAddress(ipAddress);
     }
 }
