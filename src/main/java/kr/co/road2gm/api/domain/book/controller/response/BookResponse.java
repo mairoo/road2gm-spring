@@ -2,6 +2,7 @@ package kr.co.road2gm.api.domain.book.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import kr.co.road2gm.api.domain.book.domain.Book;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,11 @@ public class BookResponse {
     @JsonProperty("modified")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modified;
+
+    public BookResponse(Book book) {
+        this.id = book.getId();
+        this.title = book.getTitle();
+        this.created = book.getCreated();
+        this.modified = book.getModified();
+    }
 }

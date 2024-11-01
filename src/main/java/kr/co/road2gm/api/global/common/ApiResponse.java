@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -45,7 +46,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(data, 200, "OK");
     }
 
-    public static <T> ApiResponse<T> of(T data, String message) {
-        return new ApiResponse<>(data, 200, message);
+    public static <T> ApiResponse<T> of(T data, HttpStatus status, String message) {
+        return new ApiResponse<>(data, status.value(), message);
     }
 }

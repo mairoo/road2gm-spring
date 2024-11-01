@@ -8,7 +8,7 @@ public enum ErrorCode {
     // Common
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "필드 입력값 양식이 올바르지 않습니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청 경로가 올바르지 않습니다."),
-    MESSAGE_BODY_NOT_FOUND(HttpStatus.BAD_REQUEST, "HTTP 요청 본문이 없거나 올바르지 않습니다."),
+    MESSAGE_BODY_NOT_FOUND(HttpStatus.BAD_REQUEST, "HTTP 요청 본문이 없거나 본문 형식이 올바르지 않습니다."),
     JSON_SERIALIZATION_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "응답 객체를 JSON 직렬화하지 못했습니다"),
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 오류가 발생했습니다."),
 
@@ -19,6 +19,9 @@ public enum ErrorCode {
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT 형식이 올바르지 않습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "아이디가 이미 존재합니다."),
+    EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이메일이 이미 존재합니다."),
+    FAILED_TO_CREATE_USER(HttpStatus.CONFLICT, "사용자를 추가하지 못했습니다."),
 
     // Book
     BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 책이 없습니다.");

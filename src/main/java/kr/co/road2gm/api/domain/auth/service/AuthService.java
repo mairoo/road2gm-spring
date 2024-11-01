@@ -1,6 +1,7 @@
 package kr.co.road2gm.api.domain.auth.service;
 
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
+import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
 import kr.co.road2gm.api.domain.auth.domain.User;
@@ -36,7 +37,7 @@ public class AuthService {
 
     @Transactional
     public Optional<AccessTokenResponse>
-    authenticate(PasswordGrantRequest request) {
+    signIn(PasswordGrantRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
@@ -48,6 +49,32 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
         return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity));
+    }
+
+    @Transactional
+    public Optional<User>
+    signUp(SignUpRequest request) {
+        // 복합 인덱스 사용 및 findByUsernameOrEmail() 메소드는 수만건 이하 데이터 조회에 적합
+
+        // RDBMS 개별 인덱스 설정: username, email 설정
+        // 개별 쿼리 실행으로 수십만건 데이터까지는 처리 가능
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new ApiException(ErrorCode.USERNAME_ALREADY_EXIST);
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ApiException(ErrorCode.EMAIL_ALREADY_EXIST);
+        }
+
+        User user = User.builder(request.getUsername(),
+                                 passwordEncoder.encode(request.getPassword()),
+                                 request.getEmail())
+                .build();
+
+        userRepository.save(user);
+
+        return Optional.of(user);
     }
 
     public String
