@@ -86,4 +86,32 @@ public class AuthService {
 
         return refreshToken;
     }
+
+    @Transactional
+    public Optional<AccessTokenResponse>
+    refresh() {
+
+        //  Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByToken(refreshToken);
+        //        if (refreshTokenOpt.isEmpty()) {
+        //            return ResponseEntity.badRequest().body("Invalid refresh token");
+        //        }
+        //
+        //        RefreshToken refreshTokenEntity = refreshTokenOpt.get();
+        //        if (refreshTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
+        //            refreshTokenRepository.delete(refreshTokenEntity);
+        //            return ResponseEntity.badRequest().body("Refresh token expired");
+        //        }
+        //
+        //        User user = refreshTokenEntity.getUser();
+        //        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        //        final String accessToken = jwtUtil.generateToken(userDetails, true);
+        //
+
+        // 토큰 이름 = 일치 시 토큰 가져옴
+        // 만료된 것이면 삭제처리 하고 오류 throw
+        // 토큰 이름으로 사용자명 가져옴
+        // 사용자명으로 이름 검색
+        // 액세스 토큰 발급
+        return Optional.empty();
+    }
 }

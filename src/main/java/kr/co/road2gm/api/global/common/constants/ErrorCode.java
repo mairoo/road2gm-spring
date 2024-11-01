@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "JWT의 비밀키 서명이 올바르지 않습니다."),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT 토큰이 만료되었습니다."),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT 형식이 올바르지 않습니다."),
+    REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 없습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "아이디가 이미 존재합니다."),
