@@ -6,7 +6,6 @@ import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
 import kr.co.road2gm.api.domain.auth.domain.User;
-import kr.co.road2gm.api.domain.auth.dto.RefreshTokenDto;
 import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
@@ -59,11 +58,9 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
         // 리프레시 토큰 생성
-        RefreshTokenDto refreshTokenDto = issueRefreshToken(request.getUsername(),
-                                                            requestHeaderParser.getClientIp(servletRequest));
+        String refreshToken = issueRefreshToken(request.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(
-                new AccessTokenResponse(accessToken, accessTokenValidity, refreshTokenDto.getRefreshToken()));
+        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, refreshToken));
     }
 
     @Transactional
@@ -92,44 +89,39 @@ public class AuthService {
         return Optional.of(user);
     }
 
-    public RefreshTokenDto
+    public String
     issueRefreshToken(String username, String ipAddress) {
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         // 리프레시 토큰은 HttpOnly, Secure, SameSite=Strict 전송, RDBMS 또는 Redis 저장
         refreshTokenRepository.save(RefreshToken.builder(refreshToken, username, ipAddress).build());
 
-        return RefreshTokenDto.builder()
-                .refreshToken(refreshToken)
-                .username(username)
-                .ipAddress(ipAddress)
-                .build();
+        return refreshToken;
     }
 
     @Transactional
     public Optional<AccessTokenResponse>
     refresh(String refreshToken, HttpServletRequest servletRequest) {
-        RefreshToken oldToken = refreshTokenRepository
+        RefreshToken oldRefreshToken = refreshTokenRepository
                 .findByToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
 
         // 리프레시 토큰 만료 여부 확인
-        if (ChronoUnit.SECONDS.between(oldToken.getCreated(), LocalDateTime.now()) > refreshTokenValidity) {
-            refreshTokenRepository.delete(oldToken);
+        if (ChronoUnit.SECONDS.between(oldRefreshToken.getCreated(), LocalDateTime.now()) > refreshTokenValidity) {
+            refreshTokenRepository.delete(oldRefreshToken);
             throw new ApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
         // 사용자 조회
-        User user = userRepository.findByUsername(oldToken.getUsername())
+        User user = userRepository.findByUsername(oldRefreshToken.getUsername())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
         // 액세스 토큰은 별도로 서버에 저장 안 하고 JSON 응답
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
         // 리프레시 토큰 생성
-        RefreshTokenDto refreshTokenDto = issueRefreshToken(user.getUsername(),
-                                                            requestHeaderParser.getClientIp(servletRequest));
+        String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, refreshTokenDto.getRefreshToken()));
+        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, newRefreshToken));
     }
 }

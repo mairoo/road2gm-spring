@@ -33,6 +33,8 @@ public class AccessTokenResponse {
     @NotNull
     private Integer expiresIn;
 
+    // 리프레시 토큰은 쿠키 전송으로 굳이 JSON 응답에 내려주지 않음
+    // 단, 응답 객체를 DTO로 사용하기 때문에 리프레시 토큰 포함
     @JsonIgnore
     private String refreshToken;
 
