@@ -5,6 +5,7 @@ import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
 import kr.co.road2gm.api.domain.auth.domain.User;
+import kr.co.road2gm.api.domain.auth.dto.RefreshTokenDto;
 import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
@@ -26,6 +29,9 @@ import java.util.Optional;
 public class AuthService {
     @Value("${jwt.access-token-expires-in}")
     private int accessTokenValidity;
+
+    @Value("${jwt.refresh-token-expires-in}")
+    private int refreshTokenValidity;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -77,41 +83,40 @@ public class AuthService {
         return Optional.of(user);
     }
 
-    public String
+    public RefreshTokenDto
     issueRefreshToken(String username, String ipAddress) {
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         // 리프레시 토큰은 HttpOnly, Secure, SameSite=Strict 전송, RDBMS 또는 Redis 저장
         refreshTokenRepository.save(RefreshToken.builder(refreshToken, username, ipAddress).build());
 
-        return refreshToken;
+        return RefreshTokenDto.builder()
+                .refreshToken(refreshToken)
+                .username(username)
+                .ipAddress(ipAddress)
+                .build();
     }
 
     @Transactional
     public Optional<AccessTokenResponse>
-    refresh() {
+    refresh(String refreshToken, String ipAddress) {
+        RefreshToken oldToken = refreshTokenRepository
+                .findByToken(refreshToken)
+                .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
 
-        //  Optional<RefreshToken> refreshTokenOpt = refreshTokenRepository.findByToken(refreshToken);
-        //        if (refreshTokenOpt.isEmpty()) {
-        //            return ResponseEntity.badRequest().body("Invalid refresh token");
-        //        }
-        //
-        //        RefreshToken refreshTokenEntity = refreshTokenOpt.get();
-        //        if (refreshTokenEntity.getExpiryDate().isBefore(LocalDateTime.now())) {
-        //            refreshTokenRepository.delete(refreshTokenEntity);
-        //            return ResponseEntity.badRequest().body("Refresh token expired");
-        //        }
-        //
-        //        User user = refreshTokenEntity.getUser();
-        //        final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        //        final String accessToken = jwtUtil.generateToken(userDetails, true);
-        //
+        // 리프레시 토큰 만료 여부 확인
+        if (ChronoUnit.SECONDS.between(oldToken.getCreated(), LocalDateTime.now()) > refreshTokenValidity) {
+            refreshTokenRepository.delete(oldToken);
+            throw new ApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
 
-        // 토큰 이름 = 일치 시 토큰 가져옴
-        // 만료된 것이면 삭제처리 하고 오류 throw
-        // 토큰 이름으로 사용자명 가져옴
-        // 사용자명으로 이름 검색
-        // 액세스 토큰 발급
-        return Optional.empty();
+        // 사용자 조회
+        User user = userRepository.findByUsername(oldToken.getUsername())
+                .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
+
+        // 액세스 토큰은 별도로 서버에 저장 안 하고 JSON 응답
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
+
+        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity));
     }
 }
