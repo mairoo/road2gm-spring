@@ -1,5 +1,6 @@
 package kr.co.road2gm.api.domain.auth.controller.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +33,9 @@ public class AccessTokenResponse {
     @NotNull
     private Integer expiresIn;
 
+    @JsonIgnore
+    private String refreshToken;
+
     // 보안을 위해 액세스 토큰 응답에 리프레시 토큰은 내려주지 않고 쿠키 전송
     // - XSS 공격으로부터 리프레시 토큰 보호
     // - CSRF 공격은 SameSite=Strict로 방어
@@ -46,5 +50,12 @@ public class AccessTokenResponse {
         this.tokenType = "Bearer";
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
+    }
+
+    public AccessTokenResponse(String accessToken,
+                               Integer expiresIn,
+                               String refreshToken) {
+        this(accessToken, expiresIn);
+        this.refreshToken = refreshToken;
     }
 }

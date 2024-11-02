@@ -1,5 +1,6 @@
 package kr.co.road2gm.api.domain.auth.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
@@ -11,6 +12,7 @@ import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
+import kr.co.road2gm.api.global.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,9 +43,11 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final RequestHeaderParser requestHeaderParser;
+
     @Transactional
     public Optional<AccessTokenResponse>
-    signIn(PasswordGrantRequest request) {
+    signIn(PasswordGrantRequest request, HttpServletRequest servletRequest) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
@@ -54,7 +58,12 @@ public class AuthService {
         // 액세스 토큰은 별도로 서버에 저장 안 하고 JSON 응답
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
-        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity));
+        // 리프레시 토큰 생성
+        RefreshTokenDto refreshTokenDto = issueRefreshToken(request.getUsername(),
+                                                            requestHeaderParser.getClientIp(servletRequest));
+
+        return Optional.of(
+                new AccessTokenResponse(accessToken, accessTokenValidity, refreshTokenDto.getRefreshToken()));
     }
 
     @Transactional
@@ -99,7 +108,7 @@ public class AuthService {
 
     @Transactional
     public Optional<AccessTokenResponse>
-    refresh(String refreshToken, String ipAddress) {
+    refresh(String refreshToken, HttpServletRequest servletRequest) {
         RefreshToken oldToken = refreshTokenRepository
                 .findByToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
@@ -117,6 +126,10 @@ public class AuthService {
         // 액세스 토큰은 별도로 서버에 저장 안 하고 JSON 응답
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
-        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity));
+        // 리프레시 토큰 생성
+        RefreshTokenDto refreshTokenDto = issueRefreshToken(user.getUsername(),
+                                                            requestHeaderParser.getClientIp(servletRequest));
+
+        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, refreshTokenDto.getRefreshToken()));
     }
 }

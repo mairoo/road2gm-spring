@@ -6,13 +6,11 @@ import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.LogoutResponse;
 import kr.co.road2gm.api.domain.auth.controller.response.UserResponse;
-import kr.co.road2gm.api.domain.auth.dto.RefreshTokenDto;
 import kr.co.road2gm.api.domain.auth.service.AuthService;
 import kr.co.road2gm.api.domain.auth.service.CookieService;
 import kr.co.road2gm.api.global.common.ApiResponse;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
-import kr.co.road2gm.api.global.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +28,6 @@ public class AuthController {
 
     private final CookieService cookieService;
 
-    private final RequestHeaderParser requestHeaderParser;
 
     @PostMapping("/sign-in")
     public ResponseEntity<?>
@@ -51,15 +48,10 @@ public class AuthController {
         //
         // 단, 외부 API나 표준을 따라야 하는 경우(OAuth2 등)에는 감싸지 않는 편이 좋다.
 
-        return authService.signIn(request)
+        return authService.signIn(request, servletRequest)
                 .map(tokenResponse -> {
-                    // 리프레시 토큰 생성
-                    RefreshTokenDto refreshTokenDto = authService
-                            .issueRefreshToken(request.getUsername(),
-                                               requestHeaderParser.getClientIp(servletRequest));
-
                     // 리프레시 쿠키 전송 설정
-                    ResponseCookie cookie = cookieService.create(refreshTokenDto.getRefreshToken());
+                    ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
 
                     // JWT 액세스 토큰 응답 객체 반환
                     return ResponseEntity.ok()
@@ -77,15 +69,10 @@ public class AuthController {
             throw new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
         }
 
-        return authService.refresh(refreshToken, requestHeaderParser.getClientIp(servletRequest))
+        return authService.refresh(refreshToken, servletRequest)
                 .map(tokenResponse -> {
-                    // 리프레시 토큰 생성
-                    RefreshTokenDto refreshTokenDto = authService
-                            .issueRefreshToken("username",
-                                               requestHeaderParser.getClientIp(servletRequest));
-
                     // 리프레시 쿠키 전송 설정
-                    ResponseCookie cookie = cookieService.create(refreshTokenDto.getRefreshToken());
+                    ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
 
                     // JWT 액세스 토큰 응답 객체 반환
                     return ResponseEntity.ok()
