@@ -30,7 +30,7 @@ public class Book extends BaseDateTime {
     @JoinColumn(name = "author_id")
     private User author;
 
-    public static BookBuilder builder(String title) {
+    public static BookBuilder from(String title) {
         return new BookBuilder()
                 .title(title);
     }

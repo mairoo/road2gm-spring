@@ -12,10 +12,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // Jackson 직렬화를 위해 기본 생성자 필요, 직접적인 생성자 호출 방지
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // 빌더에서만 사용하도록 제한, 직접적인 생성자 호출 방지
+@Builder // 객체 생성을 위한 명확한 방법 제공, 필요한 필드만 선택적으로 설정 가능
+@Getter // 불변 객체로 만들기 위해 Setter 제외, JSON 직렬화를 위해 Getter 필요
 @Slf4j
 public class User extends BaseDateTime implements UserDetails  {
     @Id
@@ -35,9 +35,9 @@ public class User extends BaseDateTime implements UserDetails  {
     @Column(name = "remember_me")
     private boolean rememberMe;
 
-    public static UserBuilder builder(String username,
-                                      String password,
-                                      String email) {
+    public static UserBuilder from(String username,
+                                   String password,
+                                   String email) {
         return new UserBuilder()
                 .username(username)
                 .password(password)

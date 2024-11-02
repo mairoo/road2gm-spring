@@ -1,6 +1,6 @@
 package kr.co.road2gm.api.domain.auth.service.impl;
 
-import kr.co.road2gm.api.domain.auth.domain.User;
+import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class UserDetailServiceImpl implements UserDetailsService {
+    private final UserRepository userRepository;
+
     @Override
     public UserDetails
     loadUserByUsername(String username) throws UsernameNotFoundException {
-        return User.builder("test", "test", "test@example.com").build();
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }

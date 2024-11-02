@@ -28,7 +28,7 @@ public class RefreshToken extends BaseDateTime {
     @Column(columnDefinition = "CHAR(39)")
     private String ipAddress;
 
-    public static RefreshTokenBuilder builder(String token, String username, String ipAddress) {
+    public static RefreshTokenBuilder from(String token, String username, String ipAddress) {
         return new RefreshTokenBuilder()
                 .username(username)
                 .token(token)
