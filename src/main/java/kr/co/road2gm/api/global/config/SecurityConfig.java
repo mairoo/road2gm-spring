@@ -63,6 +63,13 @@ public class SecurityConfig {
         // http.logout()
         // http.rememberMe() // 전통적 세션 기반 인증에서 쿠키를 통한 세션 유지 (REST API 서버에서는 유효하지 않음)
 
+        // JWT 기반 REST API 그리고 Remember Me
+        // STATELESS 세션 상태를 유지하지 않는 것이 원칙
+        // 리프레시 토큰이 이미 Remember Me와 유사한 역할 수행
+        // 세션을 사용하지 않으므로 스프링 시큐리티 Remember Me 설정은 효과 없음
+        //
+        // JWT 기반 REST API: 로그인 시 Remember Me 유무에 따라 리프레시 토큰의 유효기간을 다르게 설정하는 기법 사용
+
         // HTTP Basic 인증 (사용 안 함)
         http.httpBasic(AbstractHttpConfigurer::disable);
 
