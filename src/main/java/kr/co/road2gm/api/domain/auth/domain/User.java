@@ -8,7 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -34,6 +36,15 @@ public class User extends BaseDateTime implements UserDetails  {
 
     @Column(name = "remember_me")
     private boolean rememberMe;
+
+    // 일대다 관계: 한 사용자가 여러 역할을 가질 수 있음
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     public static UserBuilder from(String username,
                                    String password,
