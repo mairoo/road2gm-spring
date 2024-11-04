@@ -41,7 +41,6 @@ repositories {
 	mavenCentral()
 }
 
-
 //Dependencies:
 //
 // - Spring Web
@@ -67,11 +66,18 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// JJWT-API - 2024-10-27 (version specified)
+	// JJWT-API - 2024-10-27 (버전 명시)
 	// https://github.com/jwtk/jjwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6' // or 'io.jsonwebtoken:jjwt-gson:0.12.6' for gson
+
+	// QueryDSL - 2024-10-27 (버전/태그 명시): https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
+	// SpringBoot 3.x + QueryDSL 5.1.0 (Use `jakarta package, but Don't use QueryDSL plugin)
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 }
 
 tasks.named('test') {

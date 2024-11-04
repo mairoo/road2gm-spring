@@ -39,7 +39,7 @@ public class User extends BaseDateTime implements UserDetails  {
     private boolean rememberMe;
 
     @OneToMany(mappedBy = "user",
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<UserRole> userRoles = new HashSet<>();
