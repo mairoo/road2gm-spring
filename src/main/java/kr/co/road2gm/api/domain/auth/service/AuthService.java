@@ -5,9 +5,14 @@ import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
+import kr.co.road2gm.api.domain.auth.domain.Role;
 import kr.co.road2gm.api.domain.auth.domain.User;
+import kr.co.road2gm.api.domain.auth.domain.UserRole;
+import kr.co.road2gm.api.domain.auth.domain.enums.RoleName;
 import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
+import kr.co.road2gm.api.domain.auth.repository.jpa.RoleRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
+import kr.co.road2gm.api.domain.auth.repository.jpa.UserRoleRepository;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
@@ -15,6 +20,7 @@ import kr.co.road2gm.api.global.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +41,10 @@ public class AuthService {
     private int refreshTokenValidity;
 
     private final UserRepository userRepository;
+
+    private final UserRoleRepository userRoleRepository;
+
+    private final RoleRepository roleRepository;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -112,6 +122,31 @@ public class AuthService {
         String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
         return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, newRefreshToken));
+    }
+
+    @Transactional
+    public void addRoleToUser(String username, RoleName roleName) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("역할 없음"));
+
+        if (userRoleRepository.findByUserAndRole(user, role).isEmpty()) {
+            UserRole userRole = UserRole.from(user, role).build();
+            userRoleRepository.save(userRole);
+        }
+    }
+
+    @Transactional
+    public void removeRoleFromUser(String username, RoleName roleName) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("역할 없음"));
+
+        userRoleRepository.deleteByUserAndRole(user, role);
     }
 
     public String

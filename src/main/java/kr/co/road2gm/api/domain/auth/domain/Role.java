@@ -25,11 +25,9 @@ public class Role {
     @Enumerated(value = EnumType.STRING)
     private RoleName name;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Role parent;
-
-    @OneToMany(mappedBy = "parent")
-    @Builder.Default
-    private Set<Role> childRoles = new HashSet<>();
+    @OneToMany(mappedBy = "role",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<UserRole> userRoles = new HashSet<>();
 }

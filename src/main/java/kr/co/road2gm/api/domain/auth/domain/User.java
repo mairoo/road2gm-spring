@@ -5,12 +5,13 @@ import kr.co.road2gm.api.global.common.BaseDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
@@ -37,14 +38,11 @@ public class User extends BaseDateTime implements UserDetails  {
     @Column(name = "remember_me")
     private boolean rememberMe;
 
-    // 일대다 관계: 한 사용자가 여러 역할을 가질 수 있음
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<UserRole> userRoles = new HashSet<>();
 
     public static UserBuilder from(String username,
                                    String password,
@@ -58,7 +56,9 @@ public class User extends BaseDateTime implements UserDetails  {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return getUserRoles().stream()
+                .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().getName().name()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -79,5 +79,14 @@ public class User extends BaseDateTime implements UserDetails  {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    public void addRole(Role role) {
+        UserRole userRole = UserRole.from(this, role).build();
+        userRoles.add(userRole);
+    }
+
+    public void removeRole(Role role) {
+        userRoles.removeIf(userRole -> userRole.getRole().equals(role));
     }
 }
