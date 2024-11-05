@@ -49,13 +49,15 @@ public class AuthController {
 
         return authService.signIn(request, servletRequest)
                 .map(tokenResponse -> {
-                    // 리프레시 쿠키 전송 설정
-                    ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
-
-                    // JWT 액세스 토큰 응답 객체 반환
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(ApiResponse.of(tokenResponse));
+                    if (request.isRememberMe()) {
+                        // 리프레시 쿠키 전송 설정
+                        ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
+                        // JWT 액세스 토큰 응답 객체 반환
+                        return ResponseEntity.ok()
+                                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                                .body(ApiResponse.of(tokenResponse));
+                    }
+                    return ResponseEntity.ok().body(ApiResponse.of(tokenResponse));
                 })
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }

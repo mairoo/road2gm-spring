@@ -28,6 +28,10 @@ public class PasswordGrantRequest {
     @NotBlank
     private String password;
 
+    @JsonProperty("rememberMe")
+    @NotNull
+    private boolean rememberMe;
+
     @JsonProperty("scope")
     private String scope;
 
