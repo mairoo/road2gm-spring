@@ -28,7 +28,6 @@ public class AuthController {
 
     private final CookieService cookieService;
 
-
     @PostMapping("/sign-in")
     public ResponseEntity<?>
     signIn(@Valid @RequestBody

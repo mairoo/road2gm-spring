@@ -29,10 +29,6 @@ public class BookController {
     getAllBooks() {
         List<BookResponse> books = bookService.findAllBooks();
 
-        if (books.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok(ApiResponse.of(books));
     }
 
