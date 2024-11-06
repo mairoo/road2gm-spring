@@ -90,15 +90,17 @@ public class AuthController {
     @PostMapping("/sign-out")
     public ResponseEntity<?>
     signOut() {
-        ResponseCookie accessTokenCookie = cookieService.invalidateAccessToken();
+        HttpHeaders headers = new HttpHeaders();
 
-        // DB에 저장된 리프레시 토큰은 주기적인 배치 삭제 처리
+        ResponseCookie accessTokenCookie = cookieService.invalidateAccessToken();
         ResponseCookie refreshTokenCookie = cookieService.invalidateRefreshToken();
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(ApiResponse.of(null));
+        headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+        // DB에 저장된 리프레시 토큰은 주기적인 배치 삭제 처리할 것
+
+        return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
     }
 
     @PostMapping("/sign-up")
