@@ -48,22 +48,19 @@ public class AuthController {
 
         return authService.signIn(request, servletRequest)
                 .map(tokenDto -> {
+                    HttpHeaders headers = new HttpHeaders();
+
                     ResponseCookie accessTokenCookie = cookieService.createAccessToken(tokenDto.getAccessToken());
 
+                    headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+
                     if (request.isRememberMe()) {
-                        // 리프레시 쿠키 전송 설정
                         ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(
                                 tokenDto.getRefreshToken());
 
-                        // JWT 액세스 토큰 응답 객체 반환
-                        return ResponseEntity.ok()
-                                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                                .body(ApiResponse.of(null));
+                        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
                     }
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                            .body(ApiResponse.of(null));
+                    return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
                 })
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
@@ -78,16 +75,15 @@ public class AuthController {
 
         return authService.refresh(refreshToken, servletRequest)
                 .map(tokenDto -> {
+                    HttpHeaders headers = new HttpHeaders();
+
                     ResponseCookie accessTokenCookie = cookieService.createAccessToken(tokenDto.getAccessToken());
+                    ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(tokenDto.getRefreshToken());
 
-                    // 리프레시 쿠키 전송 설정
-                    ResponseCookie cookie = cookieService.createRefreshToken(tokenDto.getRefreshToken());
+                    headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+                    headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-                    // JWT 액세스 토큰 응답 객체 반환
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(ApiResponse.of(null));
+                    return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
         }).orElseThrow(() -> new ApiException(ErrorCode.FAILED_TO_REFRESH));
     }
 
