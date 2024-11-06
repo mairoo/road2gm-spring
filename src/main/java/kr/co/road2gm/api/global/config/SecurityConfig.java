@@ -3,6 +3,8 @@ package kr.co.road2gm.api.global.config;
 import kr.co.road2gm.api.global.error.handlers.JwtAccessDeniedHandler;
 import kr.co.road2gm.api.global.error.handlers.JwtAuthenticationEntryPoint;
 import kr.co.road2gm.api.global.jwt.JwtAuthenticationFilter;
+import kr.co.road2gm.api.global.oauth2.CustomOAuth2UserService;
+import kr.co.road2gm.api.global.oauth2.handlers.OAuth2SuccessHandler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,10 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler accessDeniedHandler;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     // WebSecurityConfigurerAdapter 상속 구현 방식은 더 이상 사용하지 않음
     // 현재는 @Bean 컴포넌트 설정 방식
@@ -149,7 +155,8 @@ public class SecurityConfig {
 
         http.oauth2Login(oauth2 -> {
             // oauth2Login()만 설정해도 기본 인증 엔드포인트 [http://localhost:8080/oauth2/authorization/google] 활성화
-            oauth2.permitAll();
+            oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                    .successHandler(oAuth2SuccessHandler);
         });
 
         return http.build();
