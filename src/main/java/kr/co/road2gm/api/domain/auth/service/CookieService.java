@@ -22,11 +22,11 @@ public class CookieService {
 
     public ResponseCookie createAccessToken(String refreshToken) {
         return ResponseCookie.from("accessToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
+                .httpOnly(true) // XSS 공격 방지
+                .secure(true) // 오직 HTTPS 허용
+                .path("/") // 모든 경로에서 접근 가능
                 .maxAge(accessTokenValidity)
-                .sameSite("Strict")
+                .sameSite("Strict") // CSRF 공격 방지
                 .domain(cookieDomain)
                 .build();
     }

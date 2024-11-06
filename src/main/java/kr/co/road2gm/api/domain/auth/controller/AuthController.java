@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
-import kr.co.road2gm.api.domain.auth.controller.response.LogoutResponse;
 import kr.co.road2gm.api.domain.auth.controller.response.UserResponse;
 import kr.co.road2gm.api.domain.auth.service.AuthService;
 import kr.co.road2gm.api.domain.auth.service.CookieService;
@@ -95,12 +94,15 @@ public class AuthController {
     @PostMapping("/sign-out")
     public ResponseEntity<?>
     signOut() {
+        ResponseCookie accessTokenCookie = cookieService.invalidateAccessToken();
+
         // DB에 저장된 리프레시 토큰은 주기적인 배치 삭제 처리
-        ResponseCookie cookie = cookieService.invalidateRefreshToken();
+        ResponseCookie refreshTokenCookie = cookieService.invalidateRefreshToken();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(ApiResponse.of(new LogoutResponse()));
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(ApiResponse.of(null));
     }
 
     @PostMapping("/sign-up")

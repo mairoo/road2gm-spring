@@ -19,14 +19,11 @@ import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
 import kr.co.road2gm.api.global.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
@@ -34,12 +31,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-    @Value("${jwt.access-token-expires-in}")
-    private int accessTokenValidity;
-
-    @Value("${jwt.refresh-token-expires-in}")
-    private int refreshTokenValidity;
-
     private final UserRepository userRepository;
 
     private final UserRoleRepository userRoleRepository;
@@ -107,11 +98,10 @@ public class AuthService {
                 .findByToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
 
-        // 리프레시 토큰 만료 여부 확인
-        if (ChronoUnit.SECONDS.between(oldRefreshToken.getCreated(), LocalDateTime.now()) > refreshTokenValidity) {
-            refreshTokenRepository.delete(oldRefreshToken);
-            throw new ApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
-        }
+        String username = oldRefreshToken.getUsername();
+
+        // 기존 리프레시 토큰 즉시 삭제 (재사용 방지)
+        refreshTokenRepository.deleteByUsername(username);
 
         // 사용자 조회
         User user = userRepository.findByUsername(oldRefreshToken.getUsername())
@@ -119,6 +109,7 @@ public class AuthService {
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
 
+        // 리프레시 토큰 로테이션 (재발급 처리)
         String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
         return Optional.of(new TokenDto(accessToken, newRefreshToken));
@@ -154,6 +145,14 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
         // 리프레시 토큰은 HttpOnly, Secure, SameSite=Strict 전송, RDBMS 또는 Redis 저장
+
+        // 서버 저장하는 이윤
+        //
+        // - 토큰 유효성 검증
+        // - 토큰 재사용 감지
+        // - 강제 로그아웃 기능 구현
+        // - 사용자별 토큰 관리
+        // - 보안 감사 및 모니터링
         refreshTokenRepository.save(RefreshToken.from(refreshToken, username, ipAddress).build());
 
         return refreshToken;
