@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum RoleName {
-    CUSTOMER,
+    USER,
     AUTHOR,
     ORGANIZER,
     SYSADMIN,
