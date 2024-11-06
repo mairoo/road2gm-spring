@@ -1,6 +1,7 @@
 package kr.co.road2gm.api.domain.auth.domain;
 
 import jakarta.persistence.*;
+import kr.co.road2gm.api.domain.auth.domain.enums.SocialProvider;
 import kr.co.road2gm.api.global.common.BaseDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,12 @@ public class User extends BaseDateTime implements UserDetails  {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<UserRole> userRoles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<SocialAccount> socialAccounts = new HashSet<>();
 
     public static UserBuilder from(String username,
                                    String password,
@@ -81,6 +89,7 @@ public class User extends BaseDateTime implements UserDetails  {
         return UserDetails.super.isEnabled();
     }
 
+    // Role 연동 메소드
     public void addRole(Role role) {
         UserRole userRole = UserRole.from(this, role).build();
         userRoles.add(userRole);
@@ -88,5 +97,21 @@ public class User extends BaseDateTime implements UserDetails  {
 
     public void removeRole(Role role) {
         userRoles.removeIf(userRole -> userRole.getRole().equals(role));
+    }
+
+    // 소셜 계정 연동
+    public void addSocialAccount(SocialAccount account) {
+        socialAccounts.add(account);
+        account.connect(this);
+    }
+
+    public void removeSocialAccount(SocialProvider provider) {
+        socialAccounts.removeIf(account -> account.getProvider() == provider);
+    }
+
+    public Optional<SocialAccount> getSocialConnection(SocialProvider provider) {
+        return socialAccounts.stream()
+                .filter(connection -> connection.getProvider() == provider)
+                .findFirst();
     }
 }
