@@ -147,6 +147,11 @@ public class SecurityConfig {
         // Add JWT token filter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+        http.oauth2Login(oauth2 -> {
+            // oauth2Login()만 설정해도 기본 인증 엔드포인트 [http://localhost:8080/oauth2/authorization/google] 활성화
+            oauth2.permitAll();
+        });
+
         return http.build();
     }
 
