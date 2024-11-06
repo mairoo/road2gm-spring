@@ -11,25 +11,56 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class CookieService {
+    @Value("${jwt.access-token-expires-in}")
+    private int accessTokenValidity;
+
     @Value("${jwt.refresh-token-expires-in}")
     private int refreshTokenValidity;
 
-    public ResponseCookie create(String refreshToken) {
+    @Value("${jwt.cookie-domain}")
+    private String cookieDomain;
+
+    public ResponseCookie createAccessToken(String refreshToken) {
+        return ResponseCookie.from("accessToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(accessTokenValidity)
+                .sameSite("Strict")
+                .domain(cookieDomain)
+                .build();
+    }
+
+    public ResponseCookie invalidateAccessToken() {
+        return ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .domain(cookieDomain)
+                .build();
+    }
+
+    public ResponseCookie createRefreshToken(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(refreshTokenValidity)
                 .sameSite("Strict")
+                .domain(cookieDomain)
                 .build();
     }
 
-    public ResponseCookie invalidate() {
+    public ResponseCookie invalidateRefreshToken() {
         return ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(refreshTokenValidity)
-                .sameSite("Strict").build();
+                .maxAge(0)
+                .sameSite("Strict")
+                .domain(cookieDomain)
+                .build();
     }
 }

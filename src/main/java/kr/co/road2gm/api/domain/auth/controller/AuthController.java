@@ -48,16 +48,23 @@ public class AuthController {
         // 단, 외부 API나 표준을 따라야 하는 경우(OAuth2 등)에는 감싸지 않는 편이 좋다.
 
         return authService.signIn(request, servletRequest)
-                .map(tokenResponse -> {
+                .map(tokenDto -> {
+                    ResponseCookie accessTokenCookie = cookieService.createAccessToken(tokenDto.getAccessToken());
+
                     if (request.isRememberMe()) {
                         // 리프레시 쿠키 전송 설정
-                        ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
+                        ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(
+                                tokenDto.getRefreshToken());
+
                         // JWT 액세스 토큰 응답 객체 반환
                         return ResponseEntity.ok()
-                                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                                .body(ApiResponse.of(tokenResponse));
+                                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                                .body(ApiResponse.of(null));
                     }
-                    return ResponseEntity.ok().body(ApiResponse.of(tokenResponse));
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                            .body(ApiResponse.of(null));
                 })
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
@@ -71,14 +78,17 @@ public class AuthController {
         }
 
         return authService.refresh(refreshToken, servletRequest)
-                .map(tokenResponse -> {
+                .map(tokenDto -> {
+                    ResponseCookie accessTokenCookie = cookieService.createAccessToken(tokenDto.getAccessToken());
+
                     // 리프레시 쿠키 전송 설정
-                    ResponseCookie cookie = cookieService.create(tokenResponse.getRefreshToken());
+                    ResponseCookie cookie = cookieService.createRefreshToken(tokenDto.getRefreshToken());
 
                     // JWT 액세스 토큰 응답 객체 반환
                     return ResponseEntity.ok()
+                            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(ApiResponse.of(tokenResponse));
+                            .body(ApiResponse.of(null));
         }).orElseThrow(() -> new ApiException(ErrorCode.FAILED_TO_REFRESH));
     }
 
@@ -86,7 +96,7 @@ public class AuthController {
     public ResponseEntity<?>
     signOut() {
         // DB에 저장된 리프레시 토큰은 주기적인 배치 삭제 처리
-        ResponseCookie cookie = cookieService.invalidate();
+        ResponseCookie cookie = cookieService.invalidateRefreshToken();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())

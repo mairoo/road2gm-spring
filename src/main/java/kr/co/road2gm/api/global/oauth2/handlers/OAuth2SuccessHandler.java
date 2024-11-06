@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import kr.co.road2gm.api.global.common.ApiResponse;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
@@ -89,9 +88,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = tokenProvider.createAccessToken(email);
 
-        ApiResponse<AccessTokenResponse> apiResponse = ApiResponse.of(new AccessTokenResponse(token, 1800),
-                                                                      HttpStatus.OK,
-                                                                      "로그인에 성공했습니다.");
+        ApiResponse<?> apiResponse = ApiResponse.of(null,
+                                                    HttpStatus.OK,
+                                                    "로그인에 성공했습니다.");
 
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

@@ -3,12 +3,12 @@ package kr.co.road2gm.api.domain.auth.service;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
-import kr.co.road2gm.api.domain.auth.controller.response.AccessTokenResponse;
 import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
 import kr.co.road2gm.api.domain.auth.domain.Role;
 import kr.co.road2gm.api.domain.auth.domain.User;
 import kr.co.road2gm.api.domain.auth.domain.UserRole;
 import kr.co.road2gm.api.domain.auth.domain.enums.RoleName;
+import kr.co.road2gm.api.domain.auth.dto.TokenDto;
 import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.RoleRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
@@ -55,7 +55,7 @@ public class AuthService {
     private final RequestHeaderParser requestHeaderParser;
 
     @Transactional
-    public Optional<AccessTokenResponse>
+    public Optional<TokenDto>
     signIn(PasswordGrantRequest request, HttpServletRequest servletRequest) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
@@ -70,7 +70,7 @@ public class AuthService {
 
         String refreshToken = issueRefreshToken(request.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, refreshToken));
+        return Optional.of(new TokenDto(accessToken, refreshToken));
     }
 
     @Transactional
@@ -101,7 +101,7 @@ public class AuthService {
     }
 
     @Transactional
-    public Optional<AccessTokenResponse>
+    public Optional<TokenDto>
     refresh(String refreshToken, HttpServletRequest servletRequest) {
         RefreshToken oldRefreshToken = refreshTokenRepository
                 .findByToken(refreshToken)
@@ -121,7 +121,7 @@ public class AuthService {
 
         String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new AccessTokenResponse(accessToken, accessTokenValidity, newRefreshToken));
+        return Optional.of(new TokenDto(accessToken, newRefreshToken));
     }
 
     @Transactional
