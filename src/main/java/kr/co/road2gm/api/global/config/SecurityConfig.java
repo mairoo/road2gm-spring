@@ -143,7 +143,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                                            // 1. 공개 리소스
                                            // 매 요청마다 JWT 검증 오버헤드 발생 - 불필요한 토큰 파싱과 서명 검증
-                                           .requestMatchers("/auth/**",
+                                           .requestMatchers("/oauth2/**",
+                                                            "/auth/**",
                                                             "/api/**").permitAll()
                                            // 2. 상기 경로 이외 모두 비공개 리소스
                                            .anyRequest().authenticated()

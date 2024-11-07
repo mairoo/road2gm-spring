@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PasswordGrantRequest {
     // https://www.oauth.com/oauth2-servers/access-tokens/password-grant/
-    @JsonProperty("username")
+    @JsonProperty("email")
     @NotNull
     @NotBlank
-    private String username;
+    private String email;
 
     @JsonProperty("password")
     @NotNull

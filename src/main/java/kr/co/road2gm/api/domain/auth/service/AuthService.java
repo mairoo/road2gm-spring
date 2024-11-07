@@ -48,7 +48,7 @@ public class AuthService {
     @Transactional
     public Optional<TokenDto>
     signIn(PasswordGrantRequest request, HttpServletRequest servletRequest) {
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -57,9 +57,9 @@ public class AuthService {
 
         // 액세스 토큰: DB 저장 없이 JSON 응답
         // 리프레시 토큰: DB 저장 후 쿠키 전송
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
 
-        String refreshToken = issueRefreshToken(request.getUsername(), requestHeaderParser.getClientIp(servletRequest));
+        String refreshToken = issueRefreshToken(request.getEmail(), requestHeaderParser.getClientIp(servletRequest));
 
         return Optional.of(new TokenDto(accessToken, refreshToken, user));
     }
@@ -98,25 +98,26 @@ public class AuthService {
                 .findByToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST));
 
-        String username = oldRefreshToken.getUsername();
+        String email = oldRefreshToken.getEmail();
 
         // 기존 리프레시 토큰 즉시 삭제 (재사용 방지)
-        refreshTokenRepository.deleteByUsername(username);
+        refreshTokenRepository.deleteByEmail(email);
 
         // 사용자 조회
-        User user = userRepository.findByUsername(oldRefreshToken.getUsername())
+        User user = userRepository.findByUsername(oldRefreshToken.getEmail())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
 
         // 리프레시 토큰 로테이션 (재발급 처리)
-        String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
+        String newRefreshToken = issueRefreshToken(user.getEmail(), requestHeaderParser.getClientIp(servletRequest));
 
         return Optional.of(new TokenDto(accessToken, newRefreshToken, user));
     }
 
     @Transactional
-    public void addRoleToUser(String username, RoleName roleName) {
+    public void
+    addRoleToUser(String username, RoleName roleName) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
 
@@ -130,7 +131,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void removeRoleFromUser(String username, RoleName roleName) {
+    public void
+    removeRoleFromUser(String username, RoleName roleName) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
 

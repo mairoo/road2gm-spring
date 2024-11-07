@@ -1,33 +1,41 @@
 package kr.co.road2gm.api.global.oauth2.handlers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
+import kr.co.road2gm.api.domain.auth.domain.User;
+import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
-import kr.co.road2gm.api.global.common.ApiResponse;
+import kr.co.road2gm.api.domain.auth.service.CookieService;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
+import kr.co.road2gm.api.global.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    private final RefreshTokenRepository refreshTokenRepository;
+
     private final UserRepository userRepository;
-
-    private final JwtTokenProvider tokenProvider;
-
-    private final ObjectMapper objectMapper; // 스프링 자동 주입
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CookieService cookieService;
+    private final RequestHeaderParser requestHeaderParser;
+    @Value("${jwt.oauth2-redirect-url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -83,19 +91,43 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String email = oauth2User.getAttribute("email");
 
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new IllegalStateException("User not found with email: " + email));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found with email: " + email));
 
-        String token = tokenProvider.createAccessToken(email);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
 
-        ApiResponse<?> apiResponse = ApiResponse.of(null,
-                                                    HttpStatus.OK,
-                                                    "로그인에 성공했습니다.");
+        String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        refreshTokenRepository.save(RefreshToken.from(refreshToken,
+                                                      user.getEmail(),
+                                                      requestHeaderParser.getClientIp(request))
+                                            .build());
 
-        objectMapper.writeValue(response.getWriter(), apiResponse);
+        // http only 토큰 쿠키 설정 시작
+
+        ResponseCookie accessTokenCookie = cookieService.createAccessToken(accessToken);
+        ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(refreshToken);
+
+        // 현재 응답에 설정된 모든 SET-COOKIE 헤더들 가져옴
+        Collection<String> headers = response.getHeaders(HttpHeaders.SET_COOKIE);
+
+        // 기존 쿠키가 없으면 setHeader, 기존 쿠키가 있으면 addHeader
+        boolean firstHeader = headers.isEmpty();
+
+        Collection<String> cookieHeaders = new ArrayList<>();
+
+        cookieHeaders.add(accessTokenCookie.toString());
+        cookieHeaders.add(refreshTokenCookie.toString());
+
+        if (firstHeader) {
+            response.setHeader(HttpHeaders.SET_COOKIE, cookieHeaders.iterator().next());
+            cookieHeaders.remove(cookieHeaders.iterator().next());
+        }
+
+        cookieHeaders.forEach(header -> response.addHeader(HttpHeaders.SET_COOKIE, header));
+
+        // http only 토큰 쿠키 설정 완료 후 프론트엔드로 리다이렉트
+
+        response.sendRedirect(frontendUrl + "/auth/oauth2-redirect");
     }
 }
