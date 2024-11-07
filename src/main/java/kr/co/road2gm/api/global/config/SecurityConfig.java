@@ -141,13 +141,12 @@ public class SecurityConfig {
 
         // Request resource permission mapping
         http.authorizeHttpRequests(auth -> auth
-                                           // authorizing API examples
-                                           // requestMatchers().hasRole().permitAll()
-                                           // requestMatchers().denyAll()
-                                           // .requestMatchers("/auth/**").permitAll()
-                                           .requestMatchers("/**").permitAll()
-                                           // anyRequest().authenticated() - rememberMe login enabled (form login)
-                                           .anyRequest().fullyAuthenticated() //rememberMe disabled
+                                           // 1. 공개 리소스
+                                           // 매 요청마다 JWT 검증 오버헤드 발생 - 불필요한 토큰 파싱과 서명 검증
+                                           .requestMatchers("/auth/**",
+                                                            "/api/**").permitAll()
+                                           // 2. 상기 경로 이외 모두 비공개 리소스
+                                           .anyRequest().authenticated()
                                   );
 
         // Add JWT token filter
