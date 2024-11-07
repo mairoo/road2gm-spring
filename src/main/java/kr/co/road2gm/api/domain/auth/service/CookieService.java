@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class CookieService {
+    public static final String accessTokenCookieName = "access_token";
+
+    public static final String refreshTokenCookieName = "refresh_token";
+
     @Value("${jwt.access-token-expires-in}")
     private int accessTokenValidity;
 
@@ -20,8 +24,8 @@ public class CookieService {
     @Value("${jwt.cookie-domain}")
     private String cookieDomain;
 
-    public ResponseCookie createAccessToken(String refreshToken) {
-        return ResponseCookie.from("accessToken", refreshToken)
+    public ResponseCookie createAccessToken(String accessToken) {
+        return ResponseCookie.from(accessTokenCookieName, accessToken)
                 .httpOnly(true) // XSS 공격 방지
                 .secure(true) // 오직 HTTPS 허용
                 .path("/") // 모든 경로에서 접근 가능
@@ -32,7 +36,7 @@ public class CookieService {
     }
 
     public ResponseCookie invalidateAccessToken() {
-        return ResponseCookie.from("accessToken", "")
+        return ResponseCookie.from(accessTokenCookieName, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -55,7 +59,7 @@ public class CookieService {
     // - 보안 헤더 설정
 
     public ResponseCookie createRefreshToken(String refreshToken) {
-        return ResponseCookie.from("refreshToken", refreshToken)
+        return ResponseCookie.from(refreshTokenCookieName, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -66,7 +70,7 @@ public class CookieService {
     }
 
     public ResponseCookie invalidateRefreshToken() {
-        return ResponseCookie.from("refreshToken", "")
+        return ResponseCookie.from(refreshTokenCookieName, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
