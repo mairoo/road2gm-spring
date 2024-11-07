@@ -23,10 +23,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // 구글에서 가져온 정보로 사용자 생성 또는 업데이트
         Map<String, Object> attributes = oauth2User.getAttributes();
-        log.error((String) attributes.get("sub"));
-        log.error((String) attributes.get("email"));
-        log.error((String) attributes.get("name"));
-        log.error((String) attributes.get("picture"));
+        log.debug((String) attributes.get("sub"));
+        log.debug((String) attributes.get("email"));
+        log.debug((String) attributes.get("name"));
+        log.debug((String) attributes.get("picture"));
 
         return oauth2User;  // 기본 OAuth2User 그대로 반환
     }

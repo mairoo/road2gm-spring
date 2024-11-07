@@ -6,6 +6,7 @@ import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
@@ -137,6 +138,19 @@ public class JwtTokenProvider {
             return header.substring(BEARER_PREFIX.length()).trim();
         }
 
+        return null;
+    }
+
+    public String
+    getCookieToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 }
