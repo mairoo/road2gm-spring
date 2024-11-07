@@ -27,4 +27,9 @@ public class UserResponse {
         this.username = user.getUsername();
         this.email = user.getEmail();
     }
+
+    public UserResponse(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
 }

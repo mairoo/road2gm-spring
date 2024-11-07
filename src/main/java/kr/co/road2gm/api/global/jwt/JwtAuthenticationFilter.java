@@ -29,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void
     doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+                     @NonNull HttpServletResponse response,
+                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         // 1. HTTP 프로토콜 헤더에서 토큰 추출
         Optional.ofNullable(jwtTokenProvider.getBearerToken(request))
                 // 2. JWT 토큰 유효성 확인 및 username 추출

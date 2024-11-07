@@ -61,7 +61,7 @@ public class AuthService {
 
         String refreshToken = issueRefreshToken(request.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new TokenDto(accessToken, refreshToken));
+        return Optional.of(new TokenDto(accessToken, refreshToken, user));
     }
 
     @Transactional
@@ -112,7 +112,7 @@ public class AuthService {
         // 리프레시 토큰 로테이션 (재발급 처리)
         String newRefreshToken = issueRefreshToken(user.getUsername(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new TokenDto(accessToken, newRefreshToken));
+        return Optional.of(new TokenDto(accessToken, newRefreshToken, user));
     }
 
     @Transactional

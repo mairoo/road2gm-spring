@@ -60,7 +60,9 @@ public class AuthController {
 
                         headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
                     }
-                    return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .body(ApiResponse.of(new UserResponse(tokenDto.getUsername(), tokenDto.getEmail())));
                 })
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
@@ -83,7 +85,9 @@ public class AuthController {
                     headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
                     headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-                    return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .body(ApiResponse.of(new UserResponse(tokenDto.getUsername(), tokenDto.getEmail())));
         }).orElseThrow(() -> new ApiException(ErrorCode.FAILED_TO_REFRESH));
     }
 

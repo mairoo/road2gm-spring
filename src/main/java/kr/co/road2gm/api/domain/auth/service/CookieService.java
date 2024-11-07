@@ -42,6 +42,18 @@ public class CookieService {
                 .build();
     }
 
+    // 리프레시 토큰 HTTP only 쿠키 전송 보안 체크리스트
+    // - 토큰 재사용 감지 및 대응
+    // - 적절한 만료 시간 설정
+    // - HTTPS 강제 사용
+    // - Rate Limiting 구현
+    // - 클라이언트 식별 정보 저장
+    // - 보안 이벤트 모니터링
+    // - 동시 세션 제한
+    // - 토큰 순환(rotation) 구현
+    // - 적절한 에러 처리
+    // - 보안 헤더 설정
+
     public ResponseCookie createRefreshToken(String refreshToken) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
