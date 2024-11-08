@@ -1,6 +1,6 @@
 package kr.co.road2gm.api.domain.auth.repository.jpa;
 
-import kr.co.road2gm.api.domain.auth.domain.SocialAccountState;
+import kr.co.road2gm.api.domain.auth.domain.OAuth2Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,8 +9,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface SocialAccountStateRepository extends JpaRepository<SocialAccountState, Long> {
-    Optional<SocialAccountState> findByState(String state);
+public interface OAuth2TokenRepository extends JpaRepository<OAuth2Token, Long> {
+    Optional<OAuth2Token> findByToken(String token);
 
     /*
     - JPA는 기본적으로 엔티티의 생명주기를 관리하기 위해 각 엔티티를 개별적으로 처리
@@ -20,6 +20,6 @@ public interface SocialAccountStateRepository extends JpaRepository<SocialAccoun
 
     // 강제 벌크 삭제
     @Modifying(clearAutomatically = true)  // 영속성 컨텍스트 자동 초기화
-    @Query("DELETE FROM SocialAccountState e WHERE e.created < :dateTime")
+    @Query("DELETE FROM OAuth2Token e WHERE e.created < :dateTime")
     int deleteAllCreatedBefore(@Param("dateTime") LocalDateTime dateTime);
 }

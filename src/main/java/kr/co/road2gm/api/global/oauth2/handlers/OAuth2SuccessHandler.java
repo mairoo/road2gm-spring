@@ -2,8 +2,8 @@ package kr.co.road2gm.api.global.oauth2.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.road2gm.api.domain.auth.domain.SocialAccountState;
-import kr.co.road2gm.api.domain.auth.repository.jpa.SocialAccountStateRepository;
+import kr.co.road2gm.api.domain.auth.domain.OAuth2Token;
+import kr.co.road2gm.api.domain.auth.repository.jpa.OAuth2TokenRepository;
 import kr.co.road2gm.api.domain.auth.service.CookieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final CookieService cookieService;
 
-    private final SocialAccountStateRepository socialAccountStateRepository;
+    private final OAuth2TokenRepository OAuth2TokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -74,6 +74,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        
         String email = oauth2User.getAttribute("email");
 
         // 현재 구현방식: state Http only 쿠키 전송 후 리다이렉트 방식
@@ -82,19 +83,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // - 1분만료 임시 state 생성 전달 후 리다이렉트
 
         // 임시 state 생성 및 저장
-        String state = UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
 
-        socialAccountStateRepository.save(SocialAccountState.builder()
-                                                  .state(state)
-                                                  .email(email)
-                                                  .build());
+        OAuth2TokenRepository.save(OAuth2Token.builder()
+                                           .token(token)
+                                           .email(email)
+                                           .build());
 
         // HTTP-only 쿠키로 state 전달
-        ResponseCookie cookie = cookieService.createSocialAccountState(state);
+        ResponseCookie cookie = cookieService.createOAuth2Token(token);
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        // state 없이 리다이렉트
+        // state query parma 없이 리다이렉트
         response.sendRedirect(frontendUrl + "/auth/oauth2-redirect");
     }
 }

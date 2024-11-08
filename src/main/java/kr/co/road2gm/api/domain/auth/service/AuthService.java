@@ -33,7 +33,7 @@ public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private final SocialAccountStateRepository socialAccountStateRepository;
+    private final OAuth2TokenRepository OAuth2TokenRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -112,19 +112,19 @@ public class AuthService {
 
     @Transactional
     public Optional<TokenDto>
-    signIn(String state, HttpServletRequest servletRequest) {
-        SocialAccountState authState = socialAccountStateRepository.findByState(state)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid state"));
+    signIn(String token, HttpServletRequest servletRequest) {
+        OAuth2Token oAuth2Token = OAuth2TokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
 
-        if (authState.isExpired()) {
-            socialAccountStateRepository.delete(authState);
-            throw new IllegalArgumentException("Expired state");
+        if (oAuth2Token.isExpired()) {
+            OAuth2TokenRepository.delete(oAuth2Token);
+            throw new IllegalArgumentException("Expired token");
         }
 
-        String email = authState.getEmail();
+        String email = oAuth2Token.getEmail();
 
-        // 사용한 state 삭제
-        socialAccountStateRepository.delete(authState);
+        // 사용한 oauth2 token 삭제
+        OAuth2TokenRepository.delete(oAuth2Token);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));

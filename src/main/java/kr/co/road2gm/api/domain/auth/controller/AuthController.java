@@ -59,22 +59,21 @@ public class AuthController {
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
 
-    @PostMapping("/oauth2-state")
+    @PostMapping("/oauth2-token")
     public ResponseEntity<?>
-    signIn(@CookieValue(name = "oauth2_state") String state,
-           HttpServletRequest request) {
+    signIn(@CookieValue(name = CookieService.OAUTH2_TOKEN_COOKIE_NAME) String oauth2Token,
+           HttpServletRequest servletRequest) {
         // 쿠키 문자열 null 체크 불필요 : 쿠키가 없으면 MissingRequestCookieException 발생
 
-        return authService.signIn(state, request)
+        return authService.signIn(oauth2Token, servletRequest)
                 .map(tokenDto -> {
                     HttpHeaders headers = new HttpHeaders();
 
-                    ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(
-                            tokenDto.getRefreshToken());
-                    ResponseCookie socialAccountStateCookie = cookieService.invalidateSocialAccountState();
+                    ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(tokenDto.getRefreshToken());
+                    ResponseCookie oauth2TokenCookie = cookieService.invalidateOAuth2Token();
 
                     headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
-                    headers.add(HttpHeaders.SET_COOKIE, socialAccountStateCookie.toString());
+                    headers.add(HttpHeaders.SET_COOKIE, oauth2TokenCookie.toString());
 
                     return ResponseEntity.ok()
                             .headers(headers)
@@ -86,7 +85,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?>
-    refresh(@CookieValue(name = "refresh_token") String refreshToken,
+    refresh(@CookieValue(name = CookieService.REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
             HttpServletRequest servletRequest) {
         if (refreshToken == null) {
             throw new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
