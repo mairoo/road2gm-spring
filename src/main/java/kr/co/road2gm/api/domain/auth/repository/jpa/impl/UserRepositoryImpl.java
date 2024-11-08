@@ -17,7 +17,7 @@ public class UserRepositoryImpl implements UserRepositoryQuery {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<User> findByUsernameWithRoles(String username) {
+    public Optional<User> findByEmailWithRoles(String email) {
         QUser user = QUser.user;
         QUserRole userRole = QUserRole.userRole;
         QRole role = QRole.role;
@@ -26,7 +26,7 @@ public class UserRepositoryImpl implements UserRepositoryQuery {
                 .selectFrom(user)
                 .leftJoin(user.userRoles, userRole).fetchJoin()
                 .leftJoin(userRole.role, role).fetchJoin()
-                .where(user.username.eq(username))
+                .where(user.email.eq(email))
                 .fetchOne(); // 결과가 없으면 null, 2건 이상이면 NonUniqueResultException
 
         return Optional.ofNullable(result);

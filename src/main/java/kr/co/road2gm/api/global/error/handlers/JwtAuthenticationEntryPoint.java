@@ -1,6 +1,8 @@
 package kr.co.road2gm.api.global.error.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
@@ -28,6 +30,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.writeValue(response.getOutputStream(), ErrorResponse.of(ErrorCode.WRONG_USERNAME_OR_PASSWORD,
                                                                        request.getRequestURI()));
     }

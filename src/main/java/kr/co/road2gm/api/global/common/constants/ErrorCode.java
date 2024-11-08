@@ -13,7 +13,7 @@ public enum ErrorCode {
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 오류가 발생했습니다."),
 
     // Auth
-    WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "잘못된 아이디 또는 비밀번호입니다."),
+    WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "잘못된 이메일 또는 비밀번호입니다."),
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "로그인 토큰의 비밀키 서명이 올바르지 않습니다."),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인 토큰이 만료되었습니다."),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "로그인 토큰 형식이 올바르지 않습니다."),

@@ -99,7 +99,7 @@ public class AuthService {
         log.info("Deleted {} refresh token by {}", deletedCount, email);
 
         // 사용자 조회
-        User user = userRepository.findByUsername(oldRefreshToken.getEmail())
+        User user = userRepository.findByEmail(oldRefreshToken.getEmail())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
@@ -137,8 +137,8 @@ public class AuthService {
 
     @Transactional
     public void
-    addRoleToUser(String username, RoleName roleName) {
-        User user = userRepository.findByUsername(username)
+    addRoleToUser(String email, RoleName roleName) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
 
         Role role = roleRepository.findByName(roleName)
@@ -152,8 +152,8 @@ public class AuthService {
 
     @Transactional
     public void
-    removeRoleFromUser(String username, RoleName roleName) {
-        User user = userRepository.findByUsername(username)
+    removeRoleFromUser(String email, RoleName roleName) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자 없음"));
 
         Role role = roleRepository.findByName(roleName)
