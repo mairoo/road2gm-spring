@@ -33,7 +33,7 @@ public class AuthService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private final OAuth2TokenRepository OAuth2TokenRepository;
+    private final OAuth2TokenRepository oAuth2TokenRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -113,18 +113,19 @@ public class AuthService {
     @Transactional
     public Optional<TokenDto>
     signIn(String token, HttpServletRequest servletRequest) {
-        OAuth2Token oAuth2Token = OAuth2TokenRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
+        // 토큰 삭제 동시성 문제 원천적으로 방지
+        OAuth2Token oAuth2Token = oAuth2TokenRepository.findByTokenWithLock(token)
+                .orElseThrow(() -> new ApiException(ErrorCode.INVALID_OAUTH2_TOKEN));
 
         if (oAuth2Token.isExpired()) {
-            OAuth2TokenRepository.delete(oAuth2Token);
-            throw new IllegalArgumentException("Expired token");
+            oAuth2TokenRepository.delete(oAuth2Token);
+            throw new ApiException(ErrorCode.OAUTH2_TOKEN_EXPIRED);
         }
 
         String email = oAuth2Token.getEmail();
 
         // 사용한 oauth2 token 삭제
-        OAuth2TokenRepository.delete(oAuth2Token);
+        oAuth2TokenRepository.delete(oAuth2Token);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));

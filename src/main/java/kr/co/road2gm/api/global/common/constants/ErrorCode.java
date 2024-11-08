@@ -12,7 +12,7 @@ public enum ErrorCode {
     JSON_SERIALIZATION_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "응답 객체를 JSON 직렬화하지 못했습니다"),
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 오류가 발생했습니다."),
 
-    // Auth
+    // 인증
     WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, "잘못된 이메일 또는 비밀번호입니다."),
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "로그인 토큰의 비밀키 서명이 올바르지 않습니다."),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인 토큰이 만료되었습니다."),
@@ -20,7 +20,15 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "로그인 유지 토큰이 없습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인 유지 토큰이 만료되었습니다."),
     FAILED_TO_REFRESH(HttpStatus.UNAUTHORIZED, "로그인 유지 실패했습니다."),
+
+    // OAuth2
+    INVALID_OAUTH2_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 소셜로그인 연동 토큰입니다."),
+    OAUTH2_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "소셜로그인 연동 토큰이 만료되었습니다."),
+
+    // 인가
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+
+    // 회원가입
     USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "아이디가 이미 존재합니다."),
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이메일이 이미 존재합니다."),
     FAILED_TO_CREATE_USER(HttpStatus.CONFLICT, "사용자를 추가하지 못했습니다."),
