@@ -53,34 +53,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // - 백엔드에서 생성된 JWT 토큰을 받아서 저장하고 처리하는 페이지
         // - 실제 OAuth2 인증과는 무관
 
-        // 여기서는 굳이 복잡하게 리다이렉트 하지 않고 경로 일치
-
-        // Query Parameter 토큰 전달 방식의 문제점:
+        // 백엔드의 JWT 액세스 토큰을 프론트엔드에 전달하는 방법
         //
-        // - 브라우저 히스토리에 토큰이 남음
-        // - URL에 토큰이 노출됨
-        // - 서버 로그에 토큰이 남을 수 있음
-        // - 외부로 URL 공유 시 토큰도 함께 노출
-
-        // HttpOnly Cookie + CSRF 토큰:
-        //
-        // - XSS 공격 방지
-        // - CSRF 공격 방지
-        // - 클라이언트에서 토큰 관리 불필요
-
-        // Authorization Code + State:
-        //
-        // - 토큰이 URL에 노출되지 않음
-        // - 임시 코드는 1회성이며 짧은 유효기간
-        // - Redis 등으로 안전하게 관리 가능
-
-        // 권장사항: HTTP Only 쿠키 + 추가 보안 조치
-        // - AccessToken은 HTTP Only 쿠키로 저장
-        // - CSRF 토큰 사용
-        // - Secure 플래그 설정 (HTTPS)
-        // - SameSite 속성 설정
-        // - 적절한 만료 시간 설정
-        // - RefreshToken 사용 시 별도 보안 고려
+        // 1. JSON 응답
+        // - 새 창, 팝업으로 구현
+        // 2. HTTP only 쿠키 전송
+        // - 리다이렉트 구현 가능, 백엔드가 유효기간 1분 쿠키와 bearer 토큰을 모두 받는 형태로 구현해야 함
+        // 3. Authorization Code + state 전송
+        // - 리다이렉트 구현 가능, 백엔드가 유효기간 1분 state 값을 삭제처리해야 함(redis)
+        // 4. 쿼리 파라미터 전달
+        // - 리다이렉트 구현 가능 - 웹서버 access 로그와 브라우지 히스토리에 토큰이 남음 (보안상 비추천)
 
         if (response.isCommitted()) {
             log.debug("Response has already been committed");

@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                      @NonNull HttpServletResponse response,
                      @NonNull FilterChain filterChain) throws ServletException, IOException {
         // 1. HTTP 프로토콜 헤더에서 토큰 추출
-        Optional.ofNullable(extractToken(request))
+        Optional.ofNullable(getBearerToken(request))
                 // 2. JWT 토큰 유효성 확인 및 username 추출
                 .flatMap(jwtTokenProvider::validateToken)
                 //
@@ -93,7 +93,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. 쿠키 확인
         return getCookieToken(request);
     }
-
 
     private String
     getBearerToken(HttpServletRequest request) {
