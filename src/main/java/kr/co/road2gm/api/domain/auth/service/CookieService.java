@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -14,6 +16,8 @@ public class CookieService {
     public static final String accessTokenCookieName = "access_token";
 
     public static final String refreshTokenCookieName = "refresh_token";
+
+    public static final String socialAccountStateCookieName = "oauth2_state";
 
     @Value("${jwt.access-token-expires-in}")
     private int accessTokenValidity;
@@ -71,6 +75,28 @@ public class CookieService {
 
     public ResponseCookie invalidateRefreshToken() {
         return ResponseCookie.from(refreshTokenCookieName, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .domain(cookieDomain)
+                .build();
+    }
+
+    public ResponseCookie createSocialAccountState(String state) {
+        return ResponseCookie.from("oauth2_state", state)
+                .httpOnly(true)
+                .secure(true)
+                .path("/auth/oauth2-state") // 특정 엔드포인트로 제한
+                .maxAge(Duration.ofMinutes(1)) // 1분 후 만료
+                .sameSite("Strict")
+                .domain(cookieDomain)
+                .build();
+    }
+
+    public ResponseCookie invalidateSocialAccountState() {
+        return ResponseCookie.from(socialAccountStateCookieName, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

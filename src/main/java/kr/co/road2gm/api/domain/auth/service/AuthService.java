@@ -3,16 +3,10 @@ package kr.co.road2gm.api.domain.auth.service;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
-import kr.co.road2gm.api.domain.auth.domain.RefreshToken;
-import kr.co.road2gm.api.domain.auth.domain.Role;
-import kr.co.road2gm.api.domain.auth.domain.User;
-import kr.co.road2gm.api.domain.auth.domain.UserRole;
+import kr.co.road2gm.api.domain.auth.domain.*;
 import kr.co.road2gm.api.domain.auth.domain.enums.RoleName;
 import kr.co.road2gm.api.domain.auth.dto.TokenDto;
-import kr.co.road2gm.api.domain.auth.repository.jpa.RefreshTokenRepository;
-import kr.co.road2gm.api.domain.auth.repository.jpa.RoleRepository;
-import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
-import kr.co.road2gm.api.domain.auth.repository.jpa.UserRoleRepository;
+import kr.co.road2gm.api.domain.auth.repository.jpa.*;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
 import kr.co.road2gm.api.global.jwt.JwtTokenProvider;
@@ -38,6 +32,8 @@ public class AuthService {
     private final RoleRepository roleRepository;
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final SocialAccountStateRepository socialAccountStateRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -113,6 +109,34 @@ public class AuthService {
         String newRefreshToken = issueRefreshToken(user.getEmail(), requestHeaderParser.getClientIp(servletRequest));
 
         return Optional.of(new TokenDto(accessToken, newRefreshToken, user));
+    }
+
+    @Transactional
+    public Optional<TokenDto>
+    signIn(String state, HttpServletRequest servletRequest) {
+        SocialAccountState authState = socialAccountStateRepository.findByState(state)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid state"));
+
+        if (authState.isExpired()) {
+            socialAccountStateRepository.delete(authState);
+            throw new IllegalArgumentException("Expired state");
+        }
+
+        String email = authState.getEmail();
+
+        // 사용한 state 삭제
+        socialAccountStateRepository.delete(authState);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
+
+        // 액세스 토큰: DB 저장 없이 JSON 응답
+        // 리프레시 토큰: DB 저장 후 쿠키 전송
+        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
+
+        String refreshToken = issueRefreshToken(email, requestHeaderParser.getClientIp(servletRequest));
+
+        return Optional.of(new TokenDto(accessToken, refreshToken, user));
     }
 
     @Transactional

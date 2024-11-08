@@ -67,9 +67,35 @@ public class AuthController {
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
 
+    @PostMapping("/oauth2-state")
+    public ResponseEntity<?>
+    signIn(@CookieValue(name = "oauth2_state") String state,
+           HttpServletRequest request) {
+        // 쿠키 문자열 null 체크 불필요 : 쿠키가 없으면 MissingRequestCookieException 발생
+
+        return authService.signIn(state, request)
+                .map(tokenDto -> {
+                    HttpHeaders headers = new HttpHeaders();
+
+                    ResponseCookie accessTokenCookie = cookieService.createAccessToken(tokenDto.getAccessToken());
+                    ResponseCookie refreshTokenCookie = cookieService.createRefreshToken(
+                            tokenDto.getRefreshToken());
+                    ResponseCookie socialAccountStateCookie = cookieService.invalidateSocialAccountState();
+
+                    headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+                    headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+                    headers.add(HttpHeaders.SET_COOKIE, socialAccountStateCookie.toString());
+
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .body(ApiResponse.of(new UserResponse(tokenDto.getUsername(), tokenDto.getEmail())));
+                })
+                .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<?>
-    refresh(@CookieValue(name = "refreshToken") String refreshToken,
+    refresh(@CookieValue(name = "refresh_token") String refreshToken,
             HttpServletRequest servletRequest) {
         if (refreshToken == null) {
             throw new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
@@ -103,7 +129,6 @@ public class AuthController {
         headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         // DB에 저장된 리프레시 토큰은 주기적인 배치 삭제 처리할 것
-
         return ResponseEntity.ok().headers(headers).body(ApiResponse.of(null));
     }
 
