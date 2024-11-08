@@ -28,28 +28,6 @@ public class CookieService {
     @Value("${jwt.cookie-domain}")
     private String cookieDomain;
 
-    public ResponseCookie createAccessToken(String accessToken) {
-        return ResponseCookie.from(accessTokenCookieName, accessToken)
-                .httpOnly(true) // XSS 공격 방지
-                .secure(true) // 오직 HTTPS 허용
-                .path("/") // 모든 경로에서 접근 가능
-                .maxAge(accessTokenValidity)
-                .sameSite("Strict") // CSRF 공격 방지
-                .domain(cookieDomain)
-                .build();
-    }
-
-    public ResponseCookie invalidateAccessToken() {
-        return ResponseCookie.from(accessTokenCookieName, "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Strict")
-                .domain(cookieDomain)
-                .build();
-    }
-
     // 리프레시 토큰 HTTP only 쿠키 전송 보안 체크리스트
     // - 토큰 재사용 감지 및 대응
     // - 적절한 만료 시간 설정

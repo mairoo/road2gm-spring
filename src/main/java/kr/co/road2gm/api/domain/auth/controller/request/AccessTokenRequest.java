@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PasswordGrantRequest {
+public class AccessTokenRequest {
     // https://www.oauth.com/oauth2-servers/access-tokens/password-grant/
     @JsonProperty("email")
     @NotNull

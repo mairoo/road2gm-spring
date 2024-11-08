@@ -1,7 +1,7 @@
 package kr.co.road2gm.api.domain.auth.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kr.co.road2gm.api.domain.auth.controller.request.PasswordGrantRequest;
+import kr.co.road2gm.api.domain.auth.controller.request.AccessTokenRequest;
 import kr.co.road2gm.api.domain.auth.controller.request.SignUpRequest;
 import kr.co.road2gm.api.domain.auth.domain.*;
 import kr.co.road2gm.api.domain.auth.domain.enums.RoleName;
@@ -43,7 +43,7 @@ public class AuthService {
 
     @Transactional
     public Optional<TokenDto>
-    signIn(PasswordGrantRequest request, HttpServletRequest servletRequest) {
+    signIn(AccessTokenRequest request, HttpServletRequest servletRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
@@ -51,13 +51,11 @@ public class AuthService {
             throw new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
         }
 
-        // 액세스 토큰: DB 저장 없이 JSON 응답
-        // 리프레시 토큰: DB 저장 후 쿠키 전송
         String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
 
         String refreshToken = issueRefreshToken(request.getEmail(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new TokenDto(accessToken, refreshToken, user));
+        return Optional.of(new TokenDto(accessToken, refreshToken));
     }
 
     @Transactional
@@ -97,7 +95,8 @@ public class AuthService {
         String email = oldRefreshToken.getEmail();
 
         // 기존 리프레시 토큰 즉시 삭제 (재사용 방지)
-        refreshTokenRepository.deleteByEmail(email);
+        int deletedCount = refreshTokenRepository.deleteAllByEmail(email);
+        log.info("Deleted {} refresh token by {}", deletedCount, email);
 
         // 사용자 조회
         User user = userRepository.findByUsername(oldRefreshToken.getEmail())
@@ -108,7 +107,7 @@ public class AuthService {
         // 리프레시 토큰 로테이션 (재발급 처리)
         String newRefreshToken = issueRefreshToken(user.getEmail(), requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new TokenDto(accessToken, newRefreshToken, user));
+        return Optional.of(new TokenDto(accessToken, newRefreshToken));
     }
 
     @Transactional
@@ -130,13 +129,10 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
 
-        // 액세스 토큰: DB 저장 없이 JSON 응답
-        // 리프레시 토큰: DB 저장 후 쿠키 전송
         String accessToken = jwtTokenProvider.createAccessToken(user.getEmail());
-
         String refreshToken = issueRefreshToken(email, requestHeaderParser.getClientIp(servletRequest));
 
-        return Optional.of(new TokenDto(accessToken, refreshToken, user));
+        return Optional.of(new TokenDto(accessToken, refreshToken));
     }
 
     @Transactional
@@ -170,15 +166,6 @@ public class AuthService {
     issueRefreshToken(String username, String ipAddress) {
         String refreshToken = jwtTokenProvider.createRefreshToken();
 
-        // 리프레시 토큰은 HttpOnly, Secure, SameSite=Strict 전송, RDBMS 또는 Redis 저장
-
-        // 서버 저장하는 이윤
-        //
-        // - 토큰 유효성 검증
-        // - 토큰 재사용 감지
-        // - 강제 로그아웃 기능 구현
-        // - 사용자별 토큰 관리
-        // - 보안 감사 및 모니터링
         refreshTokenRepository.save(RefreshToken.from(refreshToken, username, ipAddress).build());
 
         return refreshToken;
