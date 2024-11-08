@@ -49,7 +49,7 @@ public class CookieService {
         return ResponseCookie.from(OAUTH2_TOKEN_COOKIE_NAME, oauth2Token)
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/oauth2-token") // 특정 엔드포인트로 제한
+                .path("/auth/oauth2/token") // 특정 엔드포인트로 제한
                 .maxAge(Duration.ofMinutes(1)) // 1분 후 만료
                 .sameSite("Strict")
                 .domain(cookieDomain)

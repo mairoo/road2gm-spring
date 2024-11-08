@@ -59,7 +59,7 @@ public class AuthController {
                 .orElseThrow(() -> new ApiException(ErrorCode.WRONG_USERNAME_OR_PASSWORD));
     }
 
-    @PostMapping("/oauth2-token")
+    @PostMapping("/oauth2/token")
     public ResponseEntity<?>
     signIn(@CookieValue(name = CookieService.OAUTH2_TOKEN_COOKIE_NAME) String oauth2Token,
            HttpServletRequest servletRequest) {
