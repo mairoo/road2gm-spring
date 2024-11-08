@@ -6,13 +6,10 @@ import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.error.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -24,10 +21,6 @@ public class JwtTokenProvider {
     public static final String JWT_TYPE = "JWT";
 
     public static final String JWT_ALGORITHM = "HS512";
-
-    public static final String BEARER_PREFIX = "Bearer ";
-
-    public static final String X_AUTH_TOKEN = "X-Auth-Token";
 
     // 알고리즘에 따라 키 길이 변경
     // HS256: openssl rand -hex 24
@@ -112,45 +105,5 @@ public class JwtTokenProvider {
             // 토큰 형식 오류
             throw new ApiException(ErrorCode.INVALID_JWT);
         }
-    }
-
-    public String
-    getXAuthToken(HttpServletRequest request) {
-        // Header format
-        // Non-standard header
-        // X-Auth-Token : JWTString=
-        final String header = request.getHeader(X_AUTH_TOKEN);
-
-        if (header != null && !header.isBlank()) {
-            return header;
-        }
-        return null;
-    }
-
-    public String
-    getBearerToken(HttpServletRequest request) {
-        // Header format
-        // RFC 7235 standard header
-        // Authorization: Bearer JWTString=
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (header != null && header.startsWith(BEARER_PREFIX)) {
-            return header.substring(BEARER_PREFIX.length()).trim();
-        }
-
-        return null;
-    }
-
-    public String
-    getCookieToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }

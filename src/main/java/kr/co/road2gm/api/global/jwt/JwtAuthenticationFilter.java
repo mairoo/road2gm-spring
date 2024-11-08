@@ -2,11 +2,13 @@ package kr.co.road2gm.api.global.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,13 +28,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
+    public static final String BEARER_PREFIX = "Bearer ";
+
+    public static final String X_AUTH_TOKEN = "X-Auth-Token";
+
     @Override
     protected void
     doFilterInternal(@NonNull HttpServletRequest request,
                      @NonNull HttpServletResponse response,
                      @NonNull FilterChain filterChain) throws ServletException, IOException {
         // 1. HTTP 프로토콜 헤더에서 토큰 추출
-        Optional.ofNullable(jwtTokenProvider.getCookieToken(request))
+        Optional.ofNullable(extractToken(request))
                 // 2. JWT 토큰 유효성 확인 및 username 추출
                 .flatMap(jwtTokenProvider::validateToken)
                 //
@@ -69,5 +75,63 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 8. 이후 필터 실행
         filterChain.doFilter(request, response);
+    }
+
+    // 토큰 추출 우선순위 설정
+    private String
+    extractToken(HttpServletRequest request) {
+        // Bearer 토큰과 쿠키의 우선순위:
+        // - 어떤 것을 먼저 검사할지 명확히 정의
+        // - 동시에 존재할 경우의 처리 방침 수립
+
+        // 1. Bearer 토큰 먼저 확인
+        String bearerToken = getBearerToken(request);
+        if (bearerToken != null) {
+            return bearerToken;
+        }
+
+        // 2. 쿠키 확인
+        return getCookieToken(request);
+    }
+
+
+    private String
+    getBearerToken(HttpServletRequest request) {
+        // Header format
+        // RFC 7235 standard header
+        // Authorization: Bearer JWTString=
+        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            return header.substring(BEARER_PREFIX.length()).trim();
+        }
+
+        return null;
+    }
+
+    private String
+    getCookieToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String
+    getXAuthToken(HttpServletRequest request) {
+        // Header format
+        // Non-standard header
+        // X-Auth-Token : JWTString=
+        final String header = request.getHeader(X_AUTH_TOKEN);
+
+        if (header != null && !header.isBlank()) {
+            return header;
+        }
+        return null;
     }
 }
