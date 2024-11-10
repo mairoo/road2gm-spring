@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "로그인 토큰의 비밀키 서명이 올바르지 않습니다."),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인 토큰이 만료되었습니다."),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "로그인 토큰 형식이 올바르지 않습니다."),
+    REFRESH_TOKEN_COOKIE_NOT_EXIST(HttpStatus.UNAUTHORIZED, "로그인 유지 토큰 쿠키가 없습니다."),
     REFRESH_TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "로그인 유지 토큰이 없습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "로그인 유지 토큰이 만료되었습니다."),
     FAILED_TO_REFRESH(HttpStatus.UNAUTHORIZED, "로그인 유지 실패했습니다."),

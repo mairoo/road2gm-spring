@@ -88,7 +88,7 @@ public class AuthController {
     refresh(@CookieValue(name = CookieService.REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
             HttpServletRequest servletRequest) {
         if (refreshToken == null) {
-            throw new ApiException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
+            throw new ApiException(ErrorCode.REFRESH_TOKEN_COOKIE_NOT_EXIST);
         }
 
         return authService.refresh(refreshToken, servletRequest)
