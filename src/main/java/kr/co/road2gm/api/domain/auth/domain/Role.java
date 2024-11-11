@@ -29,5 +29,6 @@ public class Role {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
+    @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 }

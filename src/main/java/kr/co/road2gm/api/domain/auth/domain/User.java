@@ -44,12 +44,14 @@ public class User extends BaseDateTime implements UserDetails  {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
+    @Builder.Default
     private Set<UserRole> userRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "user",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true)
+    @Builder.Default
     private Set<SocialAccount> socialAccounts = new HashSet<>();
 
     public static UserBuilder from(String username,
