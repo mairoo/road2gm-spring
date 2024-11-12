@@ -14,10 +14,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -31,6 +35,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String BEARER_PREFIX = "Bearer ";
 
     public static final String X_AUTH_TOKEN = "X-Auth-Token";
+
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        // 매 요청마다 JWT 검증 오버헤드 발생 - 불필요한 토큰 파싱과 서명 검증
+        // 스프링 시큐리티 설정에서 permitAll() 한 경로라고 해서 토큰 검증 필터가 실행이 안 되는 것이 아님
+        //
+        // 1. JwtAuthenticationFilter (토큰 검증)
+        // 2. ... 다른 필터들 ...
+        // 3. AuthorizationFilter (permitAll() 등의 권한 설정이 여기서 적용됨)
+
+        List<RequestMatcher> permitAllMatchers = Arrays.asList(
+                new AntPathRequestMatcher("/auth/**"),
+                new AntPathRequestMatcher("/oauth2/**"),
+                new AntPathRequestMatcher("/api/**"));
+
+        return permitAllMatchers.stream()
+                .anyMatch(matcher -> matcher.matches(request));
+    }
 
     @Override
     protected void
