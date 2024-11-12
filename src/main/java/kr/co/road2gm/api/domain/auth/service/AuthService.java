@@ -8,9 +8,9 @@ import kr.co.road2gm.api.domain.auth.domain.enums.RoleName;
 import kr.co.road2gm.api.domain.auth.dto.TokenDto;
 import kr.co.road2gm.api.domain.auth.repository.jpa.*;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
+import kr.co.road2gm.api.global.common.util.RequestHeaderParser;
 import kr.co.road2gm.api.global.response.error.exception.ApiException;
 import kr.co.road2gm.api.global.security.jwt.JwtTokenProvider;
-import kr.co.road2gm.api.global.common.util.RequestHeaderParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -67,6 +67,8 @@ public class AuthService {
         // 개별 쿼리 실행으로 수십만건 데이터까지는 문제 없음
 
         // 회원수 수백만일 경우에는 캐시, 인덱스 힌트 등 사용
+
+        // 중복 검사
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new ApiException(ErrorCode.USERNAME_ALREADY_EXIST);
         }
@@ -75,10 +77,20 @@ public class AuthService {
             throw new ApiException(ErrorCode.EMAIL_ALREADY_EXIST);
         }
 
+        // 사용자 생성
         User user = User.from(request.getUsername(),
                               passwordEncoder.encode(request.getPassword()),
                               request.getEmail())
                 .build();
+
+        // 기본 USER 역할 부여
+        Role userRole = roleRepository.findByName(RoleName.USER)
+                .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
+        user.addRole(userRole);
+
+        // - user.addRole(userRole)로 추가된 userRole은 User의 UserRoles 컬렉션에 포함되어 있으므로
+        //  userRepository.save(user) 호출 시 CascadeType.ALL 설정에 따라 자동 저장
+        // - UserRole 클래스의 from 메소드를 통해 생성할 때 이미 양방향 관계가 올바르게 설정됨
 
         userRepository.save(user);
 

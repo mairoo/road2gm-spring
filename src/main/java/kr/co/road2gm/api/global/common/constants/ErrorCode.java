@@ -33,6 +33,7 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "아이디가 이미 존재합니다."),
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이메일이 이미 존재합니다."),
     FAILED_TO_CREATE_USER(HttpStatus.CONFLICT, "사용자를 추가하지 못했습니다."),
+    ROLE_NOT_FOUND(HttpStatus.CONFLICT, "역할이 존재하지 않습니다."),
 
     // Book
     BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "요청하신 책이 없습니다.");
