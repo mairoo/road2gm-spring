@@ -2,7 +2,7 @@ package kr.co.road2gm.api.domain.book.domain;
 
 import jakarta.persistence.*;
 import kr.co.road2gm.api.domain.auth.domain.User;
-import kr.co.road2gm.api.global.common.BaseDateTime;
+import kr.co.road2gm.api.global.common.entity.BaseDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.common;
+package kr.co.road2gm.api.global.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.oauth2;
+package kr.co.road2gm.api.global.security.oauth2;
 
 import kr.co.road2gm.api.domain.auth.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;

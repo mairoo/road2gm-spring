@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.util;
+package kr.co.road2gm.api.global.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

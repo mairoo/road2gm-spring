@@ -1,9 +1,9 @@
-package kr.co.road2gm.api.global.error.handlers;
+package kr.co.road2gm.api.global.security.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
-import kr.co.road2gm.api.global.error.ErrorResponse;
-import kr.co.road2gm.api.global.error.exception.ApiException;
+import kr.co.road2gm.api.global.response.error.ErrorResponse;
+import kr.co.road2gm.api.global.response.error.exception.ApiException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

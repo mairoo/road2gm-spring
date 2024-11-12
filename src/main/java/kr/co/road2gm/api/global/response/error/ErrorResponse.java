@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.error;
+package kr.co.road2gm.api.global.response.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

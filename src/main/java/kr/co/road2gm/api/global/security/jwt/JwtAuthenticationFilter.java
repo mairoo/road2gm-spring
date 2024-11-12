@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.jwt;
+package kr.co.road2gm.api.global.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.oauth2.handlers;
+package kr.co.road2gm.api.global.security.oauth2.handlers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

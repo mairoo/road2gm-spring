@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.jwt;
+package kr.co.road2gm.api.global.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
-import kr.co.road2gm.api.global.error.exception.ApiException;
+import kr.co.road2gm.api.global.response.error.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

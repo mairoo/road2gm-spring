@@ -2,7 +2,7 @@ package kr.co.road2gm.api.domain.book.controller;
 
 import kr.co.road2gm.api.domain.book.dto.BookResponse;
 import kr.co.road2gm.api.domain.book.service.BookService;
-import kr.co.road2gm.api.global.common.ApiResponse;
+import kr.co.road2gm.api.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

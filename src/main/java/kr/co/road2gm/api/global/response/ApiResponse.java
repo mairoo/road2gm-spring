@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.common;
+package kr.co.road2gm.api.global.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

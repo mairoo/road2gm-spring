@@ -1,10 +1,10 @@
-package kr.co.road2gm.api.global.error.handlers;
+package kr.co.road2gm.api.global.security.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.road2gm.api.global.common.constants.ErrorCode;
-import kr.co.road2gm.api.global.error.ErrorResponse;
+import kr.co.road2gm.api.global.response.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
