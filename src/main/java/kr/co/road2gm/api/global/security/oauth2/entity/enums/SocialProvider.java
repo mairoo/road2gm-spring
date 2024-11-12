@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.domain.auth.domain.enums;
+package kr.co.road2gm.api.global.security.oauth2.entity.enums;
 
 public enum SocialProvider {
     GOOGLE,

@@ -2,7 +2,8 @@ package kr.co.road2gm.api.domain.auth.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import kr.co.road2gm.api.domain.auth.domain.enums.SocialProvider;
+import kr.co.road2gm.api.global.common.entity.BaseDateTime;
+import kr.co.road2gm.api.global.security.oauth2.entity.enums.SocialProvider;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Getter
 @Slf4j
-public class SocialAccount {
+public class SocialAccount extends BaseDateTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

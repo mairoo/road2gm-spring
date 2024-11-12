@@ -1,7 +1,7 @@
 package kr.co.road2gm.api.domain.auth.domain;
 
 import jakarta.persistence.*;
-import kr.co.road2gm.api.domain.auth.domain.enums.SocialProvider;
+import kr.co.road2gm.api.global.security.oauth2.entity.enums.SocialProvider;
 import kr.co.road2gm.api.global.common.entity.BaseDateTime;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;

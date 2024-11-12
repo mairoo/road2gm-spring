@@ -25,6 +25,9 @@ public enum ErrorCode {
     // OAuth2
     INVALID_OAUTH2_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 소셜로그인 연동 토큰입니다."),
     OAUTH2_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "소셜로그인 연동 토큰이 만료되었습니다."),
+    OAUTH2_PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 로그인 제공자입니다."),
+    OAUTH2_ACCOUNT_REGISTERED(HttpStatus.CONFLICT, "이미 사용 중인 소셜로그인 계정입니다."),
+    OAUTH2_EMAIL_OCCUPIED(HttpStatus.CONFLICT, "해당 이메일 주소는 이미 다른 소셜 로그인 공급자로 연동되었습니다."),
 
     // 인가
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
