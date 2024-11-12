@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.domain.auth.repository.jpa;
+package kr.co.road2gm.api.global.security.oauth2.repository;
 
 import jakarta.persistence.LockModeType;
 import kr.co.road2gm.api.domain.auth.domain.OAuth2Token;

@@ -11,6 +11,7 @@ import kr.co.road2gm.api.global.common.constants.ErrorCode;
 import kr.co.road2gm.api.global.common.util.RequestHeaderParser;
 import kr.co.road2gm.api.global.response.error.exception.ApiException;
 import kr.co.road2gm.api.global.security.jwt.JwtTokenProvider;
+import kr.co.road2gm.api.global.security.oauth2.repository.OAuth2TokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -125,6 +126,8 @@ public class AuthService {
     @Transactional
     public Optional<TokenDto>
     signIn(String token, HttpServletRequest servletRequest) {
+        // 주의: 리액트에서 <StrictMode> 때문에 두 번 호출 되어 토큰 삭제된 것처럼 오류가 발생
+
         // 토큰 삭제 동시성 문제 원천적으로 방지
         OAuth2Token oAuth2Token = oAuth2TokenRepository.findByTokenWithLock(token)
                 .orElseThrow(() -> new ApiException(ErrorCode.INVALID_OAUTH2_TOKEN));

@@ -1,4 +1,4 @@
-package kr.co.road2gm.api.global.security.oauth2;
+package kr.co.road2gm.api.global.security.oauth2.service;
 
 import kr.co.road2gm.api.domain.auth.domain.Role;
 import kr.co.road2gm.api.domain.auth.domain.SocialAccount;

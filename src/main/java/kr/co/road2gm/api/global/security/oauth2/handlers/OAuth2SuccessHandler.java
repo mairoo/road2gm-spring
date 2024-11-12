@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.road2gm.api.domain.auth.domain.OAuth2Token;
 import kr.co.road2gm.api.domain.auth.domain.User;
-import kr.co.road2gm.api.domain.auth.repository.jpa.OAuth2TokenRepository;
+import kr.co.road2gm.api.global.security.oauth2.repository.OAuth2TokenRepository;
 import kr.co.road2gm.api.domain.auth.service.CookieService;
 import kr.co.road2gm.api.global.security.oauth2.dto.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;

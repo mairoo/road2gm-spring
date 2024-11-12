@@ -1,6 +1,6 @@
 package kr.co.road2gm.api.global.tasks;
 
-import kr.co.road2gm.api.domain.auth.repository.jpa.OAuth2TokenRepository;
+import kr.co.road2gm.api.global.security.oauth2.repository.OAuth2TokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

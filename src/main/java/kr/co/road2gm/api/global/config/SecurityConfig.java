@@ -3,7 +3,7 @@ package kr.co.road2gm.api.global.config;
 import kr.co.road2gm.api.global.security.handlers.JwtAccessDeniedHandler;
 import kr.co.road2gm.api.global.security.handlers.JwtAuthenticationEntryPoint;
 import kr.co.road2gm.api.global.security.jwt.JwtAuthenticationFilter;
-import kr.co.road2gm.api.global.security.oauth2.CustomOAuth2UserService;
+import kr.co.road2gm.api.global.security.oauth2.service.CustomOAuth2UserService;
 import kr.co.road2gm.api.global.security.oauth2.handlers.OAuth2SuccessHandler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
