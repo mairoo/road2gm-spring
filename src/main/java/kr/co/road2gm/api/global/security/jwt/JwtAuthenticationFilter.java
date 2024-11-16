@@ -42,8 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 스프링 시큐리티 설정에서 permitAll() 한 경로라고 해서 토큰 검증 필터가 실행이 안 되는 것이 아님
         //
         // 1. JwtAuthenticationFilter (토큰 검증)
-        // 2. ... 다른 필터들 ...
-        // 3. AuthorizationFilter (permitAll() 등의 권한 설정이 여기서 적용됨)
+        // 2. UsernamePasswordAuthenticationFilter
+        // 3. ... 다른 필터들 ...
+        // 4. FilterSecurityInterceptor (URL 기반 permitAll() 등의 권한 설정
 
         List<RequestMatcher> permitAllMatchers = Arrays.asList(
                 new AntPathRequestMatcher("/auth/**"),
